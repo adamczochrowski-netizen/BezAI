@@ -64,6 +64,22 @@ const CASES = [
   ['IG: news o AI', 'Nowy zakaz: obrazy AI w reklamach muszą mieć oznaczenie', false, 'none'],
   ['IG: bez frazy', 'Zachód słońca nad Bałtykiem 🌅', false, 'none'],
   ['IG: mocne wygrywa ze słabym', 'Czy to sztuka? Wygenerowane przez AI.', false, 'strong'],
+  // Na żywo, wyszukiwanie "ai generated music video" (YouTube, 13.11.2026)
+  ['YT na żywo: opis poradnika z linkiem', 'Create Your Own AI Music Video https://tolt.link/isamusicvideo In this video, I show how to create a complete AI music video ...', true, 'none'],
+  ['YT na żywo: kropki w "A.I."', 'Pink Floyd - Echoes (A.I. Generated Music Video)', true, 'strong'],
+  ['YT na żywo: teledysk AI', 'Neon Souls – Urban Reggae | Cinematic AI Music Video', true, 'strong'],
+  ['YT na żywo: liczba z kropką', 'Suno + Seedance 2.5 is Crazy at Making AI Music Video! (Free Skill)', true, 'strong'],
+  ['YT na żywo: generator w opisie', 'Drama.Land is an AI music video generator, and they asked me to make a music video', true, 'none'],
+  ['Kropka na końcu zdania nadal dzieli', 'AI generated wallpaper. Our future tools are here', true, 'strong'],
+  ['IG: workflow w bio to nadal twórca', 'AI art, workflow w bio ✨', false, 'strong'],
+  // Zaprzeczenie przed frazą (na żywo, Threads 13.11.2026)
+  ['Threads: non AI art', "I'm following, I love tarot and non AI art", true, 'none'],
+  ['IG: not AI generated', 'This is not AI generated, I painted it in Procreate', false, 'none'],
+  ["IG: isn't AI art", "Btw this isn't AI art, it's gouache", false, 'none'],
+  ['IG: non-AI', 'Non-AI art only on this page', false, 'none'],
+  ['IG PL: nie wygenerowane', 'To nie wygenerowane przez AI, malowałam 3 dni', false, 'none'],
+  ['"no." z kropką to nie zaprzeczenie', 'Weekend? No. AI art all day', false, 'strong'],
+  ['Threads: opinia rozmyta', "AI art isn't that good, yet. AI writing is fairly horrendous.", true, 'weak'],
   // Słowa w środku innych słów się nie liczą
   ['"testament" to nie "test"', 'AI generated: The Testament of Light', true, 'strong'],
   ['"mitologia" to nie "mit"', 'Grafika AI – mitologia słowiańska', false, 'strong']

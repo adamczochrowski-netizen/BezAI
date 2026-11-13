@@ -1,4 +1,4 @@
-# Bez AI – filtr treści AI i komentarzy botów (prototyp 0.8)
+# Bez AI – filtr treści AI i komentarzy botów (prototyp 0.8.1)
 
 Rozszerzenie do Chrome/Edge, które automatycznie **ukrywa** albo **rozmywa** posty wygenerowane przez AI na:
 Instagramie, Facebooku, Threads, X (Twitterze), YouTube i Reddicie (w przeglądarce na komputerze).
@@ -76,8 +76,10 @@ Fraza nie wystarcza – liczy się zdanie, w którym stoi:
 | „Is AI-Generated Art Original?”, „Czy grafika AI to sztuka?” | **nietknięte** (pytanie) |
 | „Court releases DUI suspect after AI-generated police report”, „Midjourney V7 review” | **nietknięte** (news, recenzja, poradnik, dyskusja) |
 | „How to tell if a photo was made with AI” | rozmyte (przyznanie w pytaniu – nie wiadomo) |
-| YouTube/X/Reddit: „AI art” i nazwy narzędzi („Midjourney v7 portraits”) w treści | rozmyte |
+| YouTube/X/Threads/Reddit: „AI art” i nazwy narzędzi („Midjourney v7 portraits”) w treści | rozmyte |
 | X: konto „Miku｜AI Art” – nazwa konta to deklaracja | ukryte |
+| Threads: temat wpisu „AI Art” wybrany przez autora (link obok nazwy konta) | ukryte |
+| „non AI art”, „This is not AI generated”, „To nie wygenerowane przez AI” | **nietknięte** (zaprzeczenie, od 0.8.1) |
 
 „Ten obraz został wygenerowany przez AI, co myślicie?” nadal jest ukrywany – pytanie do fanów to osobna część zdania.
 Przełącznik w okienku: **„Rozmywaj treści tylko o AI”** – wyłączony = takie treści zostają w ogóle nietknięte.
@@ -175,6 +177,13 @@ bez platformy = wszystkie. `!` albo `#` zaczyna komentarz.
 - **Threads:** tekst posta jest na stronie ~4 s wcześniej niż atrybut `data-pressable-container`,
   po którym wtyczka rozpoznaje post – posty z #aiart nie były ukrywane. Od 0.5.1 sygnały bez posta
   czekają w „poczekalni” (do 30 s), a wtyczka śledzi doklejanie atrybutów posta.
+- **Threads, wyszukiwanie „ai art” (13.11):** połowa trafień to opinie („AI art isn't that good, yet”,
+  „I love tarot and non AI art”) – 0.8 je ukrywała. Od 0.8.1 opinie są tylko rozmyte, „non AI art” nietknięte,
+  a wpisy z tematem „AI Art” ukryte.
+- **YouTube, „ai generated music video” (13.11):** poradnik ukryty przez opis „Create Your Own AI Music Video
+  https://tolt.link/…” (kropka w linku przecinała zdanie) i przeoczony „(A.I. Generated Music Video)” – oba poprawione w 0.8.1.
+- **X, odpowiedzi pod wpisem (13.11):** żaden człowiek nie zwinięty; odpowiedź z obrazkiem oznaczonym przez X
+  „Made with AI” ukryta.
 - **X:** 20/20 tweetów z #aiart ukrytych. **YouTube:** strona główna, wyniki, shorts i komentarze działają.
 - **Reddit:** jeszcze nie sprawdzony na żywo.
 
@@ -223,7 +232,7 @@ bez platformy = wszystkie. `!` albo `#` zaczyna komentarz.
 
 ## Testy
 
-Wszystkie makiety naraz (129 przypadków na 13 makietach): uruchom serwer jak niżej i otwórz
+Wszystkie makiety naraz (137 przypadków na 14 makietach): uruchom serwer jak niżej i otwórz
 http://localhost:8791/test/index.html → „Uruchom wszystkie”.
 
 Makiety z automatycznym sprawdzaniem (pasek u góry pokazuje „OK x/y”). Serwer uruchom w głównym folderze repozytorium:
@@ -259,7 +268,7 @@ node test/bot-score.test.js
 node test/lists.test.js
 ```
 
-Testy rozróżniania „z AI” i „o AI” (38 przypadków, w tym prawdziwe tytuły z YouTube i wpisy z X):
+Testy rozróżniania „z AI” i „o AI” (52 przypadki, w tym prawdziwe tytuły z YouTube i wpisy z X i Threads):
 
 ```bash
 node test/keywords.test.js

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Bez AI – filtr treści AI",
   "short_name": "Bez AI",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "minimum_chrome_version": "111",
   "description": "Ukrywa lub rozmywa posty wygenerowane przez AI na Instagramie, Facebooku, Threads, X, YouTube i Reddicie.",
   "permissions": ["storage", "alarms", "contextMenus"],

@@ -210,9 +210,12 @@
     }
     if (settings.detectHashtags) {
       const m = url.pathname.match(/^\/(?:explore\/tags|hashtag)\/([^/?#]+)/i);
-      if (m) {
-        let tag = m[1];
-        try { tag = decodeURIComponent(tag); } catch (e) { /* zostaw jak jest */ }
+      // Temat wpisu na Threads: /search?q=AI%20Art&serp_type=tags – autor sam go wybrał, jak hashtag.
+      const topic = !m && url.pathname === '/search' && url.searchParams.get('serp_type') === 'tags'
+        ? url.searchParams.get('q') : null;
+      if (m || topic) {
+        let tag = m ? m[1] : topic;
+        if (m) try { tag = decodeURIComponent(tag); } catch (e) { /* zostaw jak jest */ }
         tag = AIB.normHashtag(tag);
         if (hashtagSet.has(tag)) {
           if (!isEditable(a)) flag(a, { type: 'hashtag', text: '#' + tag });

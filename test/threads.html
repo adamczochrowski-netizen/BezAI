@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Makieta – Threads (temat wpisu i opinie o AI)</title>
+  <link rel="stylesheet" href="../extension/content/content.css">
+  <link rel="stylesheet" href="mock.css">
+  <style>.post { padding: 12px; } .topic { margin-left: 6px; color: #777; }</style>
+  <script>window.__AIB_SITE__ = 'threads';</script>
+  <script src="chrome-shim.js"></script>
+  <script src="test-kit.js"></script>
+</head>
+<body>
+  <!-- Jak w wyszukiwaniu "ai art" na prawdziwym Threads (13.11.2026): obok nazwy konta link do tematu wpisu
+       (/search?q=AI%20Art&serp_type=tags&tag_id=…). Konta i teksty wymyślone albo skrócone. -->
+  <main>
+    <div class="feed">
+      <div class="post" data-pressable-container="true" data-test-id="th1-temat-ai-art" data-test-expect="hidden">
+        <a href="/@podwodna.galeria">podwodna.galeria</a><a class="topic" href="/search?q=AI%20Art&amp;serp_type=tags&amp;tag_id=11">AI Art</a>
+        <div><span>A quiet apothecary keeps its secrets beneath the sea.</span></div>
+      </div>
+
+      <div class="post" data-pressable-container="true" data-test-id="th2-temat-midjourney" data-test-expect="hidden">
+        <a href="/@kadr.nocny">kadr.nocny</a><a class="topic" href="/search?q=Midjourney&amp;serp_type=tags&amp;tag_id=12">Midjourney</a>
+        <div><span>Neon rain, v7 ✨</span></div>
+      </div>
+
+      <div class="post" data-pressable-container="true" data-test-id="th3-opinia" data-test-expect="weak">
+        <a href="/@pisze.wieczorem">pisze.wieczorem</a>
+        <div><span>AI art isn't that good, yet. AI writing is fairly horrendous.</span></div>
+      </div>
+
+      <div class="post" data-pressable-container="true" data-test-id="th4-non-ai-art" data-test-expect="visible">
+        <a href="/@tarot.ola">tarot.ola</a>
+        <div><span>I'm following, I love tarot and non AI art, I'm looking forward to seeing what you make</span></div>
+      </div>
+
+      <div class="post" data-pressable-container="true" data-test-id="th5-pytanie" data-test-expect="visible">
+        <a href="/@fan.mj">fan.mj</a>
+        <div><span>How come when yall do your Ai art of your favourite singer its NEVER from the 80s?</span></div>
+      </div>
+
+      <div class="post" data-pressable-container="true" data-test-id="th6-not-ai-generated" data-test-expect="visible">
+        <a href="/@pedzel.kasi">pedzel.kasi</a>
+        <div><span>This is not AI generated, I painted it in Procreate 🖌️</span></div>
+      </div>
+
+      <div class="post" data-pressable-container="true" data-test-id="th7-temat-zwykly" data-test-expect="visible">
+        <a href="/@kasia">kasia</a><a class="topic" href="/search?q=Art%20Threads&amp;serp_type=tags&amp;tag_id=13">Art Threads</a>
+        <div><span>Szkic węglem, jesień 🍂</span></div>
+      </div>
+    </div>
+    <!-- Zakładka wyszukiwania "Tagi" – link do tematu poza wpisem nic nie ukrywa. -->
+    <nav data-test-id="th8-zakladka" data-test-expect="visible"><a href="/search?q=ai%20art&amp;serp_type=tags">Tagi</a></nav>
+  </main>
+
+  <script src="../extension/shared/bot-score.js"></script>
+  <script src="../extension/shared/defaults.js"></script>
+  <script src="../extension/shared/lists.js"></script>
+  <script src="../extension/content/content.js"></script>
+</body>
+</html>
