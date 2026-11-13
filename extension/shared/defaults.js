@@ -264,6 +264,7 @@
     detectHashtags: true,
     detectKeywords: true,
     detectAccounts: true,
+    learnAccounts: true, // konto z 3+ postami AI (i nie mniej niż innymi) – ukrywaj też jego posty bez oznaczenia
     blurTopics: true, // treści, które tylko *mówią* o AI (tytuły, pytania): rozmyj zamiast nic nie robić
     sites: Object.fromEntries(Object.keys(SITES).map((k) => [k, true])),
     labels: DEFAULT_LABELS,

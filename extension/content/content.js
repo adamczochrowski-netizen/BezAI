@@ -751,18 +751,172 @@
     }
   }
 
+  // ---------- konta, które często publikują AI (Instagram / Threads) ----------
+  // Konto z filmikami AI często oznacza tylko część z nich (sprawdzone 13.11.2026: 10 z 12 postów
+  // z etykietą albo "ai-generated", najnowszy bez). Liczymy posty z mocnym sygnałem z danych posta
+  // i – tylko dla kont, które mają choć jeden taki post – posty bez sygnału. Konto "publikuje AI",
+  // gdy ma co najmniej 3 posty AI i nie mniej niż pozostałych (newsy o AI czy fotograf, który raz
+  // wrzucił obraz z SI, się nie łapią). Zapisujemy same skróty (hasze), tylko na tym komputerze.
+  const LEARN_VERSION = 1;
+  const LEARN_MIN = 3;
+  const LEARN_DAYS = 30;
+  const LEARN_MAX_ACCOUNTS = 3000;
+  const LEARN_MAX_POSTS = 60;
+  let learn = { v: LEARN_VERSION, a: {} };
+  let learnTimer = 0;
+
+  function learnKey(user) {
+    return memHash(siteKey + ':' + String(user).toLowerCase());
+  }
+
+  function learnStats(user) {
+    const e = learn.a[learnKey(user)];
+    return { ai: e ? Object.keys(e.ai).length : 0, other: e ? Object.keys(e.o).length : 0 };
+  }
+
+  function isLearned(user) {
+    if (!settings.learnAccounts || !user) return false;
+    const u = String(user).toLowerCase();
+    if (trustedSet.has(u)) return false;
+    const s = learnStats(u);
+    return s.ai >= LEARN_MIN && s.ai >= s.other;
+  }
+
+  function postsWord(n) {
+    return n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'posty' : 'postów';
+  }
+
+  // Zapisuje post w pamięci konta. Zwraca true, gdy zmieniło się, czy konto "publikuje AI".
+  function isAiItem(it) {
+    const r = ownReason(it);
+    return !!r && !r.weak && !notAi['code:' + it.code];
+  }
+
+  function learnRecord(it) {
+    if (!settings.learnAccounts) return false;
+    const isAi = isAiItem(it);
+    const user = String(it.user).toLowerCase();
+    const kh = learnKey(user);
+    let e = learn.a[kh];
+    if (!e) {
+      if (!isAi) return false; // konta bez żadnego posta AI nie śledzimy
+      e = learn.a[kh] = { ai: {}, o: {} };
+      // Posty tego konta bez oznaczenia, widziane wcześniej na tej stronie, też się liczą.
+      for (const x of mediaItems.values()) {
+        if (x.code !== it.code && x.user && String(x.user).toLowerCase() === user && !isAiItem(x)) e.o[memHash(x.code)] = Date.now();
+      }
+    }
+    const ph = memHash(it.code);
+    const into = isAi ? e.ai : e.o;
+    const from = isAi ? e.o : e.ai;
+    if (into[ph] && !from[ph]) return false;
+    const before = isLearned(it.user);
+    delete from[ph];
+    into[ph] = Date.now();
+    const keys = Object.keys(into);
+    if (keys.length > LEARN_MAX_POSTS) {
+      keys.sort((a, b) => into[a] - into[b]);
+      for (const k of keys.slice(0, keys.length - LEARN_MAX_POSTS)) delete into[k];
+    }
+    if (!learnTimer) learnTimer = setTimeout(learnSave, 3000);
+    return isLearned(it.user) !== before;
+  }
+
+  // Konto zaczęło (albo przestało) "publikować AI" – oceń ponownie jego posty widziane na stronie.
+  function relearn(user) {
+    for (const it of mediaItems.values()) {
+      if (it.user && String(it.user).toLowerCase() === user) reconsider(it);
+    }
+  }
+
+  function relearnAll() {
+    for (const it of mediaItems.values()) if (it.user) reconsider(it);
+  }
+
+  function reconsider(it) {
+    const r = reasonForItem(it);
+    const old = mediaReasons.get(it.code);
+    mediaReasons.set(it.code, r);
+    if (old && old.type === 'learned' && (!r || r.type !== 'learned')) {
+      for (const c of document.querySelectorAll('[data-aib-flagged="learned"]')) {
+        if (c.getAttribute('data-aib-code') === it.code) unflag(c);
+      }
+      if (r) flagCode(it.code, r);
+    } else if (r && (!old || (old.weak && !r.weak))) {
+      flagCode(it.code, r);
+    }
+  }
+
+  function learnMerge(into, from) {
+    for (const [kh, e] of Object.entries((from && from.a) || {})) {
+      const t = into.a[kh] || (into.a[kh] = { ai: {}, o: {} });
+      for (const k of ['ai', 'o']) {
+        for (const [ph, ts] of Object.entries((e && e[k]) || {})) t[k][ph] = Math.max(t[k][ph] || 0, ts);
+      }
+      // Post zapisany i jako AI, i jako "nie AI" (np. "To nie AI" w innej karcie) – wygrywa nowszy zapis.
+      for (const ph of Object.keys(t.o)) if (t.ai[ph]) delete (t.ai[ph] > t.o[ph] ? t.o : t.ai)[ph];
+    }
+    return into;
+  }
+
+  function learnPrune(m) {
+    const cutoff = Date.now() - LEARN_DAYS * 864e5;
+    const newest = [];
+    for (const [kh, e] of Object.entries(m.a)) {
+      let max = 0;
+      for (const k of ['ai', 'o']) {
+        for (const [ph, ts] of Object.entries(e[k])) {
+          if (ts < cutoff) delete e[k][ph];
+          else if (ts > max) max = ts;
+        }
+      }
+      if (!Object.keys(e.ai).length) delete m.a[kh];
+      else newest.push([kh, max]);
+    }
+    if (newest.length > LEARN_MAX_ACCOUNTS) {
+      newest.sort((a, b) => a[1] - b[1]);
+      for (const [kh] of newest.slice(0, newest.length - LEARN_MAX_ACCOUNTS)) delete m.a[kh];
+    }
+    return m;
+  }
+
+  function learnSave() {
+    learnTimer = 0;
+    try {
+      chrome.storage.local.get('aiAccounts', (r) => {
+        const raw = r && r.aiAccounts;
+        const stored = raw && raw.v === LEARN_VERSION ? raw : { a: {} };
+        learn = learnPrune(learnMerge(learnMerge({ v: LEARN_VERSION, a: {} }, stored), learn));
+        chrome.storage.local.set({ aiAccounts: learn });
+      });
+    } catch (e) { /* wtyczka przeładowana */ }
+  }
+
+  function learnLoad() {
+    return new Promise((resolve) => {
+      chrome.storage.local.get('aiAccounts', (r) => {
+        const raw = r && r.aiAccounts;
+        const m = { v: LEARN_VERSION, a: {} };
+        resolve(learnPrune(raw && raw.v === LEARN_VERSION ? learnMerge(m, raw) : m));
+      });
+    });
+  }
+
   // ---------- dane postów (Instagram / Threads) ----------
 
-  function reasonForItem(it) {
+  // Sygnał z samego posta: etykieta platformy albo hashtag/fraza w opisie (bez list kont i pamięci).
+  function ownReason(it) {
     if (settings.detectLabels && it.ai) return { type: 'label', text: it.ai };
-    if (it.caption) {
-      const r = matchText(it.caption, false);
-      if (r) return r;
-    }
-    if (settings.detectAccounts && it.user && accountSet.has(String(it.user).toLowerCase())) {
-      return { type: 'account', text: String(it.user).toLowerCase() };
-    }
-    return null;
+    return it.caption ? matchText(it.caption, false) : null;
+  }
+
+  function reasonForItem(it) {
+    const own = ownReason(it);
+    if (own && !own.weak) return own;
+    const user = it.user ? String(it.user).toLowerCase() : '';
+    if (settings.detectAccounts && user && accountSet.has(user)) return { type: 'account', text: user };
+    if (user && isLearned(user)) return { type: 'learned', text: user, n: learnStats(user).ai };
+    return own;
   }
 
   function flagCode(code, reason) {
@@ -797,7 +951,21 @@
   function onMediaEvent(e) {
     let items;
     try { items = JSON.parse(e.detail); } catch (err) { return; }
-    if (Array.isArray(items)) items.forEach(handleMedia);
+    if (!Array.isArray(items)) return;
+    // Najpierw policz posty z całej porcji (np. siatka profilu), potem oceniaj – inaczej o tym,
+    // czy konto "często publikuje AI", decydowałaby kolejność postów w danych.
+    // Dane osadzone w HTML przychodzą jeszcze przed apply() (active = false) – też się liczą.
+    const changed = new Set();
+    if (settings && settings.enabled && settings.sites[siteKey] !== false) {
+      // Najpierw posty AI (zakładają konto w pamięci), potem pozostałe – dane bywają w dowolnej kolejności.
+      const posts = items.filter((it) => it && it.kind !== 'comment' && it.code && it.user);
+      const ai = posts.filter(isAiItem);
+      for (const it of ai.concat(posts.filter((it) => !ai.includes(it)))) {
+        if (learnRecord(it)) changed.add(String(it.user).toLowerCase());
+      }
+    }
+    items.forEach(handleMedia);
+    if (active) for (const u of changed) relearn(u);
   }
 
   // Strona posta / Reels: kod jest tylko w adresie – ukrywamy najbardziej widoczne duże zdjęcie/wideo.
@@ -913,6 +1081,8 @@
       case 'account':
         return 'konto ' + (reason.text.includes('/') ? reason.text : '@' + reason.text) +
           (ownAccountSet.has(reason.text) ? '' : ' ze wspólnej listy');
+      case 'learned':
+        return 'konto @' + reason.text + ' publikuje AI: ' + reason.n + ' ' + postsWord(reason.n) + ' z oznaczeniem';
       default: return '';
     }
   }
@@ -1203,6 +1373,10 @@
       notAi[key] = Date.now();
       saveNotAi();
     }
+    // Post od teraz liczy się w pamięci kont jako "nie AI".
+    const code = c.getAttribute('data-aib-code');
+    const it = code && mediaItems.get(code);
+    if (it && it.user && learnRecord(it)) relearn(String(it.user).toLowerCase());
     unflag(c);
     if (pageKeys.delete(key)) {
       pageCount = Math.max(0, pageCount - 1);
@@ -1228,7 +1402,7 @@
       } },
       { id: 'cover', label: 'Zakryj', run: () => c.removeAttribute('data-aib-revealed') }
     ];
-    if (reason && reason.type === 'account') {
+    if (reason && (reason.type === 'account' || reason.type === 'learned')) {
       actions.splice(1, 0, { id: 'trust', label: 'Ufaj ' + AIB.accountLabel(reason.text), run: () => {
         AIB.setAccountStatus(reason.text, 'trust')
           .then(() => showToast(AIB.accountLabel(reason.text) + ' – zaufane konto.', [undoToast(reason.text)], 6000));
@@ -1349,7 +1523,12 @@
     notAi = await new Promise((resolve) => {
       chrome.storage.local.get('notAi', (r) => resolve((r && r.notAi && typeof r.notAi === 'object') ? r.notAi : {}));
     });
-    window.addEventListener('pagehide', () => { if (memTimer) { clearTimeout(memTimer); memSave(); } });
+    learn = await learnLoad();
+    compile(); // listy (hashtagi, frazy, zaufane konta) potrzebne już dla danych osadzonych w HTML
+    window.addEventListener('pagehide', () => {
+      if (memTimer) { clearTimeout(memTimer); memSave(); }
+      if (learnTimer) { clearTimeout(learnTimer); learnSave(); }
+    });
 
     // Najpierw odbierz dane, które page-hook już zebrał (z HTML strony), dopiero potem skanuj.
     if (site.dataHook) {
@@ -1362,6 +1541,14 @@
       if (area === 'local' && changes && changes.notAi) {
         // "To nie AI" kliknięte w innej karcie.
         notAi = changes.notAi.newValue || {};
+        if (Object.keys(changes).length === 1) return;
+      }
+      if (area === 'local' && changes && changes.aiAccounts) {
+        // Inna karta poznała konto z AI albo "Wyczyść" w ustawieniach.
+        const nv = changes.aiAccounts.newValue;
+        if (!nv || !nv.a || !Object.keys(nv.a).length) learn = { v: LEARN_VERSION, a: {} };
+        else if (nv.v === LEARN_VERSION) learn = learnMerge(learn, nv);
+        if (active) relearnAll();
         if (Object.keys(changes).length === 1) return;
       }
       if (area === 'sync') {

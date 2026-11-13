@@ -1,4 +1,4 @@
-# Bez AI – filtr treści AI i komentarzy botów (prototyp 0.9)
+# Bez AI – filtr treści AI i komentarzy botów (prototyp 0.10)
 
 Rozszerzenie do Chrome/Edge, które automatycznie **ukrywa** albo **rozmywa** posty wygenerowane przez AI na:
 Instagramie, Facebooku, Threads, X (Twitterze), YouTube i Reddicie (w przeglądarce na komputerze).
@@ -60,7 +60,18 @@ Kliknij ikonę wtyczki:
 | Etykieta platformy | „Treści utworzone przez SI”, „Profil wygenerowany przez SI”, „AI info” | wysoka |
 | Hashtag | `#aiart`, `#midjourney`, `#stablediffusion` (≈70 domyślnych) | wysoka |
 | Konto z Twojej listy | `@ai.art.daily` (też gdy ktoś je oznaczy) | wysoka |
+| Konto, które często publikuje AI (Instagram, Threads – od 0.10) | jego post **bez** oznaczenia, gdy wcześniej pokazało 3+ posty z oznaczeniem | wysoka |
 | Fraza w opisie / tekście alternatywnym zdjęcia | „made with AI”, „wygenerowane przez AI” | średnia |
+
+**Konta, które często publikują AI (od 0.10).** Konta z filmikami AI oznaczają zwykle tylko część z nich
+(sprawdzone 13.11.2026: na jednym koncie 10 z 12 postów z etykietą albo „ai-generated”, najnowszy bez – a widać,
+że to AI). Wtyczka liczy, ile postów danego konta miało mocny sygnał (etykieta, hashtag, fraza), a ile nie.
+Gdy konto ma **co najmniej 3 posty AI i nie mniej niż pozostałych**, jego kolejne posty bez oznaczenia też są
+ukrywane („Treść AI ukryta (konto @… publikuje AI: 4 posty z oznaczeniem)”). Newsy o AI z pojedynczymi
+filmikami z etykietą i artysta, który raz spróbował AI, się nie łapią. Wystarczy raz wejść na profil – siatka
+postów to od razu kilkanaście przykładów. Pamięć: 30 dni, tylko skróty (hasze, bez nazw kont), tylko w tej
+przeglądarce; wyłączysz ją w okienku („Kontach, które często publikują AI”), wyczyścisz w ustawieniach,
+a pojedyncze konto wyłączysz przyciskiem „Ufaj @konto” po odsłonięciu posta.
 
 Celowo **nie** ma na liście samego `#ai` – oznaczałby też posty *o* AI (newsy, artykuły).
 Tekst wpisywany przez Ciebie (np. komentarz w trakcie pisania) jest pomijany.
@@ -244,7 +255,7 @@ bez platformy = wszystkie. `!` albo `#` zaczyna komentarz.
 
 ## Testy
 
-Wszystkie makiety naraz (157 przypadków na 16 makietach): uruchom serwer jak niżej i otwórz
+Wszystkie makiety naraz (181 przypadków na 17 makietach): uruchom serwer jak niżej i otwórz
 http://localhost:8791/test/index.html → „Uruchom wszystkie”.
 
 Makiety z automatycznym sprawdzaniem (pasek u góry pokazuje „OK x/y”). Serwer uruchom w głównym folderze repozytorium:
@@ -263,6 +274,9 @@ Potem otwórz:
 - http://localhost:8791/test/facebook.html – 24 przypadki (m.in. ukrywa tylko komentarz AI, a nie cały
   post; boty w oknie komentarzy; kopiuj-wklej u 3 kont; życzenia urodzinowe nietknięte; czat Messengera nietknięty)
 
+- http://localhost:8791/test/learn.html – konta, które często publikują AI (24 przypadki: posty bez oznaczenia
+  od konta z 4 postami AI ukryte, także doczytane później; newsy o AI, konto zaufane i jednorazowy post AI
+  nietknięte; dane w odwrotnej kolejności; w pamięci same skróty)
 - http://localhost:8791/test/p/MODAL1/ – okno posta nad feedem (10 przypadków: boty tylko w oknie,
   panel boczny „Przełącz” / „Propozycje dla Ciebie” nietknięty, ukryty post zostaje w układzie strony)
 - http://localhost:8791/test/p/MEM1/ → MEM2/ → MEM3/ (odwiedzane po kolei, po ~4 s na stronie) – pamięć

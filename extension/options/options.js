@@ -296,6 +296,11 @@ function bindShared() {
     }
   });
 
+  $('clearLearned').addEventListener('click', async () => {
+    await chrome.storage.local.set({ aiAccounts: { v: 1, a: {} } });
+    renderMemory();
+  });
+
   $('clearMemory').addEventListener('click', async () => {
     await chrome.storage.local.set({ botMemory: { v: 2, t: {}, b: {} } });
     renderMemory();
@@ -303,6 +308,16 @@ function bindShared() {
 }
 
 async function renderMemory() {
+  const { aiAccounts = {} } = await chrome.storage.local.get('aiAccounts');
+  const accs = Object.values((aiAccounts.v === 1 && aiAccounts.a) || {});
+  // Jak w content.js: co najmniej 3 posty AI i nie mniej niż pozostałych.
+  const learned = accs.filter((e) => {
+    const ai = Object.keys(e.ai || {}).length;
+    return ai >= 3 && ai >= Object.keys(e.o || {}).length;
+  }).length;
+  $('learnInfo').textContent = settings.learnAccounts === false
+    ? 'Wyłączone (włączysz w okienku wtyczki: „Kontach, które często publikują AI”).'
+    : 'Konta uznane za publikujące AI: ' + learned + ' · pozostałe konta z pojedynczymi postami AI: ' + (accs.length - learned) + '.';
   const { botMemory: raw = {} } = await chrome.storage.local.get('botMemory');
   const botMemory = raw.v === 2 ? raw : {}; // starsza pamięć (do 0.9.0) jest pomijana
   const texts = Object.keys(botMemory.t || {}).length;

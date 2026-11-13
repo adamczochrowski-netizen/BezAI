@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Makieta – Instagram: konta, które często publikują AI</title>
+  <link rel="stylesheet" href="/extension/content/content.css">
+  <link rel="stylesheet" href="/test/mock.css">
+  <script>
+    // Stan startowy: jedno zaufane konto, pusta pamięć kont (żeby makietę dało się otwierać wiele razy).
+    window.__AIB_SITE__ = 'instagram';
+    localStorage.setItem('aib-test:sync', JSON.stringify({ accounts: [], botWhitelist: ['trusted.ai.lab'] }));
+    try {
+      const l = JSON.parse(localStorage.getItem('aib-test:local') || '{}');
+      delete l.aiAccounts;
+      localStorage.setItem('aib-test:local', JSON.stringify(l));
+    } catch (e) { /* ignore */ }
+  </script>
+  <script src="/test/chrome-shim.js"></script>
+  <script src="/test/test-kit.js"></script>
+  <script src="/extension/content/page-hook.js"></script>
+</head>
+<body class="ig">
+  <!-- Feed jak na Instagramie: część postów ma etykietę AI tylko w danych (ai_label_info) albo #aiart w pełnym opisie.
+       neon.slop.studio – 4 posty AI, 2 bez oznaczenia → konto „publikuje AI”, posty bez oznaczenia też ukryte.
+       tech.news.daily – 3 posty AI, ale 5 bez → nie. trusted.ai.lab – zaufane. one.off.artist – tylko 1 post AI.
+       Konta i teksty wymyślone. -->
+  <main>
+    <div class="feed" id="feed">
+      <!-- bez oznaczenia, w danych PRZED postami z etykietą -->
+      <article data-test-id="LRN100-neon.slop.studio" data-test-expect="hidden" data-learned>
+        <header><a href="/neon.slop.studio/" class="user">neon.slop.studio</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Taniec na łące 💃… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN100/">2 godz.</a>
+      </article>
+      <!-- etykieta -->
+      <article data-test-id="LRN101-neon.slop.studio" data-test-expect="hidden">
+        <header><a href="/neon.slop.studio/" class="user">neon.slop.studio</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Sesja w deszczu… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN101/">2 godz.</a>
+      </article>
+      <!-- etykieta -->
+      <article data-test-id="LRN102-neon.slop.studio" data-test-expect="hidden">
+        <header><a href="/neon.slop.studio/" class="user">neon.slop.studio</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Kot astronauta… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN102/">2 godz.</a>
+      </article>
+      <!-- etykieta -->
+      <article data-test-id="LRN103-neon.slop.studio" data-test-expect="hidden">
+        <header><a href="/neon.slop.studio/" class="user">neon.slop.studio</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Rynek nocą… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN103/">2 godz.</a>
+      </article>
+      <!-- hashtag tylko w pełnym opisie w danych -->
+      <article data-test-id="LRN104-neon.slop.studio" data-test-expect="hidden">
+        <header><a href="/neon.slop.studio/" class="user">neon.slop.studio</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Nowa seria 🌀… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN104/">2 godz.</a>
+      </article>
+      <!-- bez oznaczenia -->
+      <article data-test-id="LRN105-neon.slop.studio" data-test-expect="hidden" data-learned>
+        <header><a href="/neon.slop.studio/" class="user">neon.slop.studio</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">A third one! 😂… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN105/">2 godz.</a>
+      </article>
+      <!-- etykieta -->
+      <article data-test-id="LRN201-tech.news.daily" data-test-expect="hidden">
+        <header><a href="/tech.news.daily/" class="user">tech.news.daily</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Tak wygląda nowy model wideo… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN201/">2 godz.</a>
+      </article>
+      <!-- etykieta -->
+      <article data-test-id="LRN202-tech.news.daily" data-test-expect="hidden">
+        <header><a href="/tech.news.daily/" class="user">tech.news.daily</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Demo generatora obrazów… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN202/">2 godz.</a>
+      </article>
+      <!-- etykieta -->
+      <article data-test-id="LRN203-tech.news.daily" data-test-expect="hidden">
+        <header><a href="/tech.news.daily/" class="user">tech.news.daily</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Filmik z nowego narzędzia… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN203/">2 godz.</a>
+      </article>
+      <!-- newsy: 3 posty AI, ale 5 bez – konto nie „publikuje AI” -->
+      <article data-test-id="LRN204-tech.news.daily" data-test-expect="visible">
+        <header><a href="/tech.news.daily/" class="user">tech.news.daily</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Premiera telefonu… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN204/">2 godz.</a>
+      </article>
+      <article data-test-id="LRN205-tech.news.daily" data-test-expect="visible">
+        <header><a href="/tech.news.daily/" class="user">tech.news.daily</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Ceny kart graficznych… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN205/">2 godz.</a>
+      </article>
+      <article data-test-id="LRN206-tech.news.daily" data-test-expect="visible">
+        <header><a href="/tech.news.daily/" class="user">tech.news.daily</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Wywiad z inżynierką… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN206/">2 godz.</a>
+      </article>
+      <article data-test-id="LRN208-tech.news.daily" data-test-expect="visible">
+        <header><a href="/tech.news.daily/" class="user">tech.news.daily</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Targi w Berlinie… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN208/">2 godz.</a>
+      </article>
+      <article data-test-id="LRN209-tech.news.daily" data-test-expect="visible">
+        <header><a href="/tech.news.daily/" class="user">tech.news.daily</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Ranking słuchawek… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN209/">2 godz.</a>
+      </article>
+      <!-- etykieta -->
+      <article data-test-id="LRN301-trusted.ai.lab" data-test-expect="hidden">
+        <header><a href="/trusted.ai.lab/" class="user">trusted.ai.lab</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Eksperyment 1… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN301/">2 godz.</a>
+      </article>
+      <!-- etykieta -->
+      <article data-test-id="LRN302-trusted.ai.lab" data-test-expect="hidden">
+        <header><a href="/trusted.ai.lab/" class="user">trusted.ai.lab</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Eksperyment 2… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN302/">2 godz.</a>
+      </article>
+      <!-- etykieta -->
+      <article data-test-id="LRN303-trusted.ai.lab" data-test-expect="hidden">
+        <header><a href="/trusted.ai.lab/" class="user">trusted.ai.lab</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Eksperyment 3… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN303/">2 godz.</a>
+      </article>
+      <!-- konto zaufane – nigdy „publikuje AI” -->
+      <article data-test-id="LRN304-trusted.ai.lab" data-test-expect="visible">
+        <header><a href="/trusted.ai.lab/" class="user">trusted.ai.lab</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Zdjęcie zespołu… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN304/">2 godz.</a>
+      </article>
+      <!-- etykieta -->
+      <article data-test-id="LRN401-one.off.artist" data-test-expect="hidden">
+        <header><a href="/one.off.artist/" class="user">one.off.artist</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Raz spróbowałam… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN401/">2 godz.</a>
+      </article>
+      <!-- tylko 1 post AI -->
+      <article data-test-id="LRN402-one.off.artist" data-test-expect="visible">
+        <header><a href="/one.off.artist/" class="user">one.off.artist</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Obraz olejny… <span role="button">więcej</span></div>
+        <a class="time" href="/p/LRN402/">2 godz.</a>
+      </article>
+      <div data-test-id="learned-label" data-test-check="learnedLabel"></div>
+      <div data-test-id="learned-no-names" data-test-check="learnedNoNames"></div>
+    </div>
+  </main>
+
+  <script type="application/json">{"require":[["RelayPrefetchedStreamCache","next",[],["adp_Feed",{"__bbox":{"result":{"data":{"xdt_api__v1__feed__timeline__connection":{"edges":[
+    {"node": {"media": {"code": "LRN100", "pk": "100", "user": {"username": "neon.slop.studio"}, "caption": {"text": "Taniec na łące 💃"}, "ai_label_info": null}}},
+    {"node": {"media": {"code": "LRN101", "pk": "101", "user": {"username": "neon.slop.studio"}, "caption": {"text": "Sesja w deszczu"}, "ai_label_info": {"attribution_label_text": "Treści utworzone przez SI", "subtitle_text": "Treści utworzone przez SI"}}}},
+    {"node": {"media": {"code": "LRN102", "pk": "102", "user": {"username": "neon.slop.studio"}, "caption": {"text": "Kot astronauta"}, "ai_label_info": {"attribution_label_text": "Treści utworzone przez SI", "subtitle_text": "Treści utworzone przez SI"}}}},
+    {"node": {"media": {"code": "LRN103", "pk": "103", "user": {"username": "neon.slop.studio"}, "caption": {"text": "Rynek nocą"}, "ai_label_info": {"attribution_label_text": "Prawdopodobnie utworzone przy użyciu SI", "subtitle_text": "Prawdopodobnie utworzone przy użyciu SI"}}}},
+    {"node": {"media": {"code": "LRN104", "pk": "104", "user": {"username": "neon.slop.studio"}, "caption": {"text": "Nowa seria 🌀\n\n#aiart #dance"}, "ai_label_info": null}}},
+    {"node": {"media": {"code": "LRN105", "pk": "105", "user": {"username": "neon.slop.studio"}, "caption": {"text": "A third one! 😂"}, "ai_label_info": null}}},
+    {"node": {"media": {"code": "LRN201", "pk": "201", "user": {"username": "tech.news.daily"}, "caption": {"text": "Tak wygląda nowy model wideo"}, "ai_label_info": {"attribution_label_text": "Treści utworzone przez SI", "subtitle_text": "Treści utworzone przez SI"}}}},
+    {"node": {"media": {"code": "LRN202", "pk": "202", "user": {"username": "tech.news.daily"}, "caption": {"text": "Demo generatora obrazów"}, "ai_label_info": {"attribution_label_text": "Treści utworzone przez SI", "subtitle_text": "Treści utworzone przez SI"}}}},
+    {"node": {"media": {"code": "LRN203", "pk": "203", "user": {"username": "tech.news.daily"}, "caption": {"text": "Filmik z nowego narzędzia"}, "ai_label_info": {"attribution_label_text": "Treści utworzone przez SI", "subtitle_text": "Treści utworzone przez SI"}}}},
+    {"node": {"media": {"code": "LRN204", "pk": "204", "user": {"username": "tech.news.daily"}, "caption": {"text": "Premiera telefonu"}, "ai_label_info": null}}},
+    {"node": {"media": {"code": "LRN205", "pk": "205", "user": {"username": "tech.news.daily"}, "caption": {"text": "Ceny kart graficznych"}, "ai_label_info": null}}},
+    {"node": {"media": {"code": "LRN206", "pk": "206", "user": {"username": "tech.news.daily"}, "caption": {"text": "Wywiad z inżynierką"}, "ai_label_info": null}}},
+    {"node": {"media": {"code": "LRN208", "pk": "208", "user": {"username": "tech.news.daily"}, "caption": {"text": "Targi w Berlinie"}, "ai_label_info": null}}},
+    {"node": {"media": {"code": "LRN209", "pk": "209", "user": {"username": "tech.news.daily"}, "caption": {"text": "Ranking słuchawek"}, "ai_label_info": null}}},
+    {"node": {"media": {"code": "LRN301", "pk": "301", "user": {"username": "trusted.ai.lab"}, "caption": {"text": "Eksperyment 1"}, "ai_label_info": {"attribution_label_text": "Treści utworzone przez SI", "subtitle_text": "Treści utworzone przez SI"}}}},
+    {"node": {"media": {"code": "LRN302", "pk": "302", "user": {"username": "trusted.ai.lab"}, "caption": {"text": "Eksperyment 2"}, "ai_label_info": {"attribution_label_text": "Treści utworzone przez SI", "subtitle_text": "Treści utworzone przez SI"}}}},
+    {"node": {"media": {"code": "LRN303", "pk": "303", "user": {"username": "trusted.ai.lab"}, "caption": {"text": "Eksperyment 3"}, "ai_label_info": {"attribution_label_text": "Treści utworzone przez SI", "subtitle_text": "Treści utworzone przez SI"}}}},
+    {"node": {"media": {"code": "LRN304", "pk": "304", "user": {"username": "trusted.ai.lab"}, "caption": {"text": "Zdjęcie zespołu"}, "ai_label_info": null}}},
+    {"node": {"media": {"code": "LRN401", "pk": "401", "user": {"username": "one.off.artist"}, "caption": {"text": "Raz spróbowałam"}, "ai_label_info": {"attribution_label_text": "Treści utworzone przez SI", "subtitle_text": "Treści utworzone przez SI"}}}},
+    {"node": {"media": {"code": "LRN402", "pk": "402", "user": {"username": "one.off.artist"}, "caption": {"text": "Obraz olejny"}, "ai_label_info": null}}}
+  ]}}}}}]]]}</script>
+
+  <script>
+    function learnedLabel() {
+      const els = [...document.querySelectorAll('[data-learned]')];
+      const bad = els.filter((e) => e.getAttribute('data-aib-flagged') !== 'learned' ||
+        !/@neon\.slop\.studio publikuje AI: [45] post(y|ów) z oznaczeniem/.test(e.getAttribute('data-aib-label') || ''));
+      return {
+        ok: els.length === 3 && !bad.length,
+        got: els.map((e) => e.getAttribute('data-test-id') + '=' + e.getAttribute('data-aib-flagged') + ' ' +
+          (e.getAttribute('data-aib-label') || '')).join('; ')
+      };
+    }
+    // Pamięć zapisana (po ~3 s), same skróty: bez nazw kont i kodów postów.
+    function learnedNoNames() {
+      const raw = localStorage.getItem('aib-test:local') || '';
+      let n = 0;
+      try { n = Object.keys(JSON.parse(raw).aiAccounts.a).length; } catch (e) { /* brak */ }
+      const leak = /neon\.slop|tech\.news|LRN\d/.test(raw);
+      return { ok: n >= 3 && !leak, got: 'kont w pamięci: ' + n + (leak ? ', są nazwy albo kody!' : '') };
+    }
+  </script>
+  <script src="/extension/shared/bot-score.js"></script>
+  <script src="/extension/shared/defaults.js"></script>
+  <script src="/extension/shared/lists.js"></script>
+  <script src="/extension/content/content.js"></script>
+  <script>
+    // Kolejna porcja feedu przez XHR: nowy post neon.slop.studio bez oznaczenia → od razu ukryty;
+    // tech.news.daily dalej nie.
+    setTimeout(() => {
+      const x = new XMLHttpRequest();
+      x.open('GET', '/test/graphql/learn.json');
+      x.send();
+    }, 1200);
+    setTimeout(() => {
+      document.getElementById('feed').insertAdjacentHTML('beforeend', `
+      <article data-test-id="LRN106-po-xhr" data-test-expect="hidden" data-learned>
+        <header><a href="/neon.slop.studio/" class="user">neon.slop.studio</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Wiosna w górach 🌸</div>
+        <a class="time" href="/p/LRN106/">1 godz.</a>
+      </article>
+      <article data-test-id="LRN207-po-xhr" data-test-expect="visible">
+        <header><a href="/tech.news.daily/" class="user">tech.news.daily</a></header>
+        <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+        <div class="caption">Nowy laptop – test baterii</div>
+        <a class="time" href="/p/LRN207/">1 godz.</a>
+      </article>`);
+    }, 1800);
+  </script>
+</body>
+</html>
