@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Makieta – wspólne listy kont</title>
+  <link rel="stylesheet" href="../extension/content/content.css">
+  <link rel="stylesheet" href="mock.css">
+  <style>
+    .clist { width: 470px; background: #fff; border: 1px solid #dbdbdb; border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 12px; }
+    .crow { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+    .crow .av { width: 32px; height: 32px; border-radius: 50%; flex: none; }
+    .crow a { color: #111; font-weight: 600; text-decoration: none; }
+    .col { display: flex; flex-direction: column; gap: 16px; }
+  </style>
+  <script>
+    // Stan startowy testu: subskrypcja testowej listy + jedno zaufane konto. Pobrane dane – puste.
+    window.__AIB_SITE__ = 'instagram';
+    localStorage.setItem('aib-test:sync', JSON.stringify({
+      accounts: [],
+      botWhitelist: ['trusted.in.list'],
+      sharedLists: [{ url: location.origin + '/test/lists/test-lista.txt', enabled: true }]
+    }));
+    localStorage.setItem('aib-test:local', JSON.stringify({}));
+  </script>
+  <script src="chrome-shim.js"></script>
+  <script src="test-kit.js"></script>
+</head>
+<body class="ig">
+  <main>
+    <div class="col">
+      <div class="feed" id="feed">
+        <article data-test-id="s1-konto-z-listy" data-test-expect="hidden">
+          <header><a href="/ai.shared.example/" class="user">ai.shared.example</a></header>
+          <div class="media" style="--a:#8b5cf6;--b:#06b6d4"></div>
+          <div class="caption">Zwykły opis bez sygnałów</div>
+          <a class="time" href="/p/SHL001/">1 godz.</a>
+        </article>
+        <article data-test-id="s2-konto-z-linku" data-test-expect="hidden">
+          <header><a href="/link.form.example/" class="user">link.form.example</a></header>
+          <div class="media" style="--a:#f59e0b;--b:#ef4444"></div>
+          <div class="caption">Zwykły opis</div>
+          <a class="time" href="/p/SHL002/">2 godz.</a>
+        </article>
+        <article data-test-id="s3-zaufane-mimo-listy" data-test-expect="visible">
+          <header><a href="/trusted.in.list/" class="user">trusted.in.list</a></header>
+          <div class="media" style="--a:#22c55e;--b:#0ea5e9"></div>
+          <div class="caption">Znajomy, którego ktoś wpisał na listę</div>
+          <a class="time" href="/p/SHL003/">3 godz.</a>
+        </article>
+        <article data-test-id="s4-wszystkie-platformy" data-test-expect="hidden">
+          <header><a href="/every.platform/" class="user">every.platform</a></header>
+          <div class="media" style="--a:#e11d48;--b:#f97316"></div>
+          <div class="caption">Opis</div>
+          <a class="time" href="/p/SHL004/">4 godz.</a>
+        </article>
+        <article data-test-id="s5-tylko-facebook" data-test-expect="visible">
+          <header><a href="/fb.only.account/" class="user">fb.only.account</a></header>
+          <div class="media" style="--a:#14b8a6;--b:#a855f7"></div>
+          <div class="caption">Na liście tylko dla Facebooka</div>
+          <a class="time" href="/p/SHL005/">5 godz.</a>
+        </article>
+        <article data-test-id="s6-czysty" data-test-expect="visible">
+          <header><a href="/clean.user/" class="user">clean.user</a></header>
+          <div class="media" style="--a:#334155;--b:#64748b"></div>
+          <div class="caption">Spacer po lesie</div>
+          <a class="time" href="/p/SHL006/">6 godz.</a>
+        </article>
+      </div>
+
+      <div class="clist">
+        <div class="crow" data-test-id="r1-bot-ze-wspolnej-listy" data-test-expect="bot">
+          <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23f43f5e'/%3E%3C/svg%3E">
+          <div><a href="/spam.shared.bot/">spam.shared.bot</a> <span>Super zdjęcie!</span></div>
+        </div>
+        <div class="crow" data-test-id="r2-czlowiek" data-test-expect="nobot">
+          <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%2322c55e'/%3E%3C/svg%3E">
+          <div><a href="/normal.person/">normal.person</a> <span>Super zdjęcie!</span></div>
+        </div>
+        <div class="crow" data-test-id="r3-zaufany-ze-spamowa-fraza" data-test-expect="nobot">
+          <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23eab308'/%3E%3C/svg%3E">
+          <div><a href="/trusted.in.list/">trusted.in.list</a> <span>Check my bio, wrzuciłem relację 😄</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../extension/shared/bot-score.js"></script>
+  <script src="../extension/shared/defaults.js"></script>
+  <script src="../extension/shared/lists.js"></script>
+  <script src="../extension/content/content.js"></script>
+  <script>
+    // Jak service worker po instalacji: pobierz subskrybowane listy (wtyczka już działa – musi się przeliczyć).
+    setTimeout(() => AIBLists.refreshAll().then((d) => { window.__aibListData = d; }), 300);
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Notatki robocze – tylko lokalnie
+ANALIZA.md
+
+# System / edytory
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
+.idea/
+node_modules/
+*.zip
+*.crx
+*.pem

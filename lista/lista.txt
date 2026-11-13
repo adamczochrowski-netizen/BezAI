@@ -1,0 +1,16 @@
+! Title: Bez AI – wspólna lista kont AI i botów
+! Updated: 2026-11-13
+! Homepage: https://github.com/adamczochrowski-netizen/BezAI/tree/main/lista
+!
+! Lista dla wtyczki Bez AI. Jedno konto w linii, opcjonalnie z platformą na początku:
+!   instagram nazwa.konta
+!   facebook nazwa.strony
+!   https://www.instagram.com/nazwa.konta/     (link do profilu też działa)
+!   nazwa.konta                                (bez platformy = wszystkie platformy)
+! Platformy: instagram (ig), facebook (fb), threads, x (twitter), youtube (yt), reddit
+! Linie zaczynające się od ! albo # to komentarze.
+! Zasady dodawania kont są w lista/README.md – każde konto tylko z dowodem.
+
+[ai]
+
+[bot]

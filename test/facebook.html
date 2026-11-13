@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Makieta – Facebook</title>
+  <link rel="stylesheet" href="../extension/content/content.css">
+  <link rel="stylesheet" href="mock.css">
+  <style>
+    .chat { position: fixed; right: 16px; bottom: 16px; width: 280px; background: #fff; border: 1px solid #ccc; border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+    .chat [role=article] { background: #e4e6eb; border-radius: 14px; padding: 6px 10px; }
+    .fb-dialog { width: 470px; margin: 16px auto; background: #fff; border: 1px solid #dbdbdb; border-radius: 8px; }
+  </style>
+  <script>window.__AIB_SITE__ = 'facebook';</script>
+  <script src="chrome-shim.js"></script>
+  <script src="test-kit.js"></script>
+</head>
+<body class="fb">
+  <!-- Układ jak na prawdziwym Facebooku (12.11.2026): brak role="feed", posty to div[aria-posinset]
+       w role="main", komentarze to role="article" z aria-label, czat Messengera poza role="main". -->
+  <div role="main">
+    <main>
+      <div class="feed">
+
+        <div aria-posinset="1" class="post" data-test-id="1-czysty" data-test-expect="visible">
+          <h4><a href="https://www.facebook.com/jan.kowalski?__cft__[0]=abc">Jan Kowalski</a></h4>
+          <p>Wczoraj byliśmy w Tatrach, pogoda dopisała! 🏔️</p>
+          <div class="media" style="--a:#0ea5e9;--b:#22c55e"></div>
+          <a class="time" href="https://www.facebook.com/jan.kowalski/posts/111">1 godz.</a>
+        </div>
+
+        <div aria-posinset="2" class="post" data-test-id="2-hashtag" data-test-expect="hidden">
+          <h4><a href="https://www.facebook.com/grupa.sztuki">Grupa Sztuki Cyfrowej</a></h4>
+          <p>Głosujcie na najlepszą pracę tygodnia! <a href="https://www.facebook.com/hashtag/aiart?__eep__=6">#aiart</a></p>
+          <div class="media" style="--a:#a855f7;--b:#f43f5e"></div>
+          <a class="time" href="https://www.facebook.com/grupa.sztuki/posts/222">2 godz.</a>
+        </div>
+
+        <div aria-posinset="3" class="post" data-test-id="3-post-z-komentarzem" data-test-expect="visible">
+          <h4><a href="https://www.facebook.com/anna.nowak">Anna Nowak</a></h4>
+          <p>Mój nowy obraz olejny, 3 tygodnie pracy 🎨</p>
+          <div class="media" style="--a:#f59e0b;--b:#b45309"></div>
+          <a class="time" href="https://www.facebook.com/anna.nowak/posts/333">3 godz.</a>
+          <div class="comments">
+            <div role="article" aria-label="Komentarz użytkownika Troll 123" class="comment" data-test-id="3a-komentarz-ai" data-test-expect="hidden">
+              <a href="https://www.facebook.com/troll.123">Troll 123</a> Ja zrobiłem lepszy w 5 sekund, made with Midjourney 😎
+            </div>
+            <div role="article" aria-label="Komentarz użytkownika Babcia Ela" class="comment" data-test-id="3b-komentarz-czysty" data-test-expect="visible">
+              <a href="https://www.facebook.com/babcia.ela">Babcia Ela</a> Przepiękny! ❤️
+            </div>
+          </div>
+        </div>
+
+        <div aria-posinset="4" class="post" data-test-id="4-etykieta-SI" data-test-expect="hidden">
+          <h4><a href="https://www.facebook.com/inspiracje.dzienne">Inspiracje Dzienne</a> · <span role="button"><span>Treści utworzone przez SI</span></span></h4>
+          <p>Tak mogłaby wyglądać Warszawa w 2100 roku 🌆</p>
+          <div class="media" style="--a:#06b6d4;--b:#4f46e5"></div>
+          <a class="time" href="https://www.facebook.com/inspiracje.dzienne/posts/444">4 godz.</a>
+        </div>
+
+        <div aria-posinset="5" class="post" data-test-id="5-zablokowane-konto" data-test-expect="hidden">
+          <h4><a href="https://www.facebook.com/ai.art.daily?__cft__[0]=xyz&__tn__=R">AI Art Daily</a></h4>
+          <p>Dzień 215 🎨</p>
+          <div class="media" style="--a:#eab308;--b:#db2777"></div>
+          <a class="time" href="https://www.facebook.com/ai.art.daily/posts/555">5 godz.</a>
+        </div>
+
+        <div aria-posinset="6" class="post" data-test-id="6-sztuczna-inteligencja-pl" data-test-expect="hidden">
+          <h4><a href="https://www.facebook.com/memy.polska">Memy Polska</a></h4>
+          <p>Grafika wygenerowana przez sztuczną inteligencję, ale i tak śmieszna 😂</p>
+          <div class="media" style="--a:#84cc16;--b:#0d9488"></div>
+          <a class="time" href="https://www.facebook.com/memy.polska/posts/666">6 godz.</a>
+        </div>
+
+        <div aria-posinset="7" class="post" data-test-id="7-mem-o-ai" data-test-expect="visible">
+          <h4><a href="https://www.facebook.com/programistapro">ProgramistaPro</a></h4>
+          <p>Jedna słuszna baza danych to Excel (SAP, Power BI, RPA, AI – wszystko przegrywa)</p>
+          <div class="media" style="--a:#facc15;--b:#ea580c"></div>
+          <a class="time" href="https://www.facebook.com/programistapro/posts/777">1 godz.</a>
+        </div>
+
+      </div>
+      <aside class="side" data-test-id="8-boczny-panel" data-test-expect="visible">
+        <p>Popularne hashtagi</p>
+        <a href="https://www.facebook.com/hashtag/aiart">#aiart</a>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Okno komentarzy (jak po kliknięciu "10 komentarzy" na prawdziwym FB): role="dialog",
+       komentarze role="article" z aria-label "Komentarz Imię Nazwisko 9 godz. temu". -->
+  <div role="dialog" class="fb-dialog">
+    <div class="comments">
+      <div role="article" aria-label="Komentarz Jessica Hot 9 godz. temu" class="comment" data-test-id="b1-check-my-bio" data-test-expect="bot">
+        <a href="https://www.facebook.com/jessica.hot8821">Jessica Hot</a> <div dir="auto">Check my bio 💋</div>
+        <div><span role="button">Lubię to!</span> <span role="button">Odpowiedz</span> <a href="https://www.facebook.com/x/posts/1?comment_id=1">9 godz.</a></div>
+      </div>
+      <div role="article" aria-label="Komentarz Tomasz K 9 godz. temu" class="comment" data-test-id="b2-oszustwo-pl" data-test-expect="bot">
+        <a href="https://www.facebook.com/tomek.k.552">Tomasz K</a> <div dir="auto">Zarobiłem 3000 zł w tydzień dzięki pani <a href="https://www.facebook.com/inwestycje.ewa">@Ewa Inwestycje</a>, polecam!</div>
+        <div><span role="button">Lubię to!</span> <span role="button">Odpowiedz</span></div>
+      </div>
+      <div role="article" aria-label="Komentarz Marek Nowak 9 godz. temu" class="comment" data-test-id="h1-pytanie" data-test-expect="nobot">
+        <a href="https://www.facebook.com/marek.nowak">Marek Nowak</a> <div dir="auto">Świetny post, gdzie to było?</div>
+        <div><span role="button">Lubię to!</span> <span role="button">Odpowiedz</span></div>
+      </div>
+      <div role="article" aria-label="Komentarz Ola 9 godz. temu" class="comment" data-test-id="h2-oznaczenie" data-test-expect="nobot">
+        <a href="https://www.facebook.com/ola.w">Ola W</a> <div dir="auto"><a href="https://www.facebook.com/kasia.nowak">Kasia Nowak</a> patrz 😂</div>
+      </div>
+      <div role="article" aria-label="Komentarz Anna 9 godz. temu" class="comment" data-test-id="d1-kopia-1" data-test-expect="bot">
+        <a href="https://www.facebook.com/anna.lee.4471">Anna Lee</a> <div dir="auto">Your journey is so motivating, thanks for sharing</div>
+      </div>
+      <div role="article" aria-label="Komentarz Mike 9 godz. temu" class="comment" data-test-id="d2-kopia-2" data-test-expect="bot">
+        <a href="https://www.facebook.com/mike.daniels.88">Mike Daniels</a> <div dir="auto">Your journey is so motivating, thanks for sharing</div>
+      </div>
+      <div role="article" aria-label="Komentarz Lisa 9 godz. temu" class="comment" data-test-id="d3-kopia-3" data-test-expect="bot">
+        <a href="https://www.facebook.com/lisa.m.travels">Lisa M</a> <div dir="auto">Your journey is so motivating, thanks for sharing</div>
+      </div>
+      <div role="article" aria-label="Komentarz Ciocia 9 godz. temu" class="comment" data-test-id="h4-zyczenia-1" data-test-expect="nobot">
+        <a href="https://www.facebook.com/ciocia.basia">Ciocia Basia</a> <div dir="auto">Wszystkiego najlepszego z okazji urodzin!</div>
+      </div>
+      <div role="article" aria-label="Komentarz Wujek 9 godz. temu" class="comment" data-test-id="h5-zyczenia-2" data-test-expect="nobot">
+        <a href="https://www.facebook.com/wujek.staszek">Wujek Staszek</a> <div dir="auto">Wszystkiego najlepszego z okazji urodzin!</div>
+      </div>
+      <div role="article" aria-label="Komentarz Kuzyn 9 godz. temu" class="comment" data-test-id="h6-zyczenia-3" data-test-expect="nobot">
+        <a href="https://www.facebook.com/kuzyn.4823">Kuzyn Marek</a> <div dir="auto">Wszystkiego najlepszego z okazji urodzin!</div>
+      </div>
+      <div role="article" aria-label="Komentarz Babcia 9 godz. temu" class="comment" data-test-id="h3-ogolnik" data-test-expect="nobot">
+        <a href="https://www.facebook.com/babcia.ela">Babcia Ela</a> <div dir="auto">Piękne ❤️</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Czat Messengera: poza role="main" i role="dialog" – nie może być ukrywany ani oceniany. -->
+  <div class="chat">
+    <div role="article" data-test-id="9-czat-wiadomosc" data-test-expect="visible">Patrz, made with Midjourney 😂 #aiart</div>
+    <div role="article" data-test-id="10-czat-wiadomosc" data-test-expect="visible">AI gówno</div>
+    <div role="article" aria-label="Wiadomość" data-test-id="11-czat-spam" data-test-expect="nobot">check my bio</div>
+  </div>
+
+  <script src="../extension/shared/bot-score.js"></script>
+  <script src="../extension/shared/defaults.js"></script>
+  <script src="../extension/content/content.js"></script>
+</body>
+</html>

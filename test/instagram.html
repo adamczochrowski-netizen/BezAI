@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Makieta – Instagram</title>
+  <link rel="stylesheet" href="../extension/content/content.css">
+  <link rel="stylesheet" href="mock.css">
+  <script>window.__AIB_SITE__ = 'instagram';</script>
+  <script src="chrome-shim.js"></script>
+  <script src="test-kit.js"></script>
+  <script src="../extension/content/page-hook.js"></script>
+</head>
+<body class="ig">
+  <main>
+    <div class="feed" id="feed">
+
+      <article data-test-id="1-czysty" data-test-expect="visible">
+        <header><a href="/kasia.foto/" class="user">kasia.foto</a><span class="meta">Sopot</span></header>
+        <div class="media" style="--a:#f59e0b;--b:#ef4444"></div>
+        <div class="caption"><a href="/kasia.foto/">kasia.foto</a> Zachód słońca nad Bałtykiem 🌅 <a href="/explore/tags/sunset/">#sunset</a> <a href="/explore/tags/poland/">#poland</a></div>
+        <a class="time" href="/p/AAA111/">2 godz.</a>
+      </article>
+
+      <article data-test-id="2-etykieta" data-test-expect="hidden">
+        <header><a href="/dreamy.visions/" class="user">dreamy.visions</a><span class="meta"> • </span><span class="meta"><span>AI info</span></span></header>
+        <div class="media" style="--a:#8b5cf6;--b:#06b6d4"></div>
+        <div class="caption"><a href="/dreamy.visions/">dreamy.visions</a> Miasto przyszłości ✨</div>
+        <a class="time" href="/p/BBB222/">3 godz.</a>
+      </article>
+
+      <article data-test-id="3-hashtag-link" data-test-expect="hidden">
+        <header><a href="/art.lover/" class="user">art.lover</a></header>
+        <div class="media" style="--a:#22c55e;--b:#0ea5e9"></div>
+        <div class="caption"><a href="/art.lover/">art.lover</a> Nowa praca! <a href="/explore/tags/aiart/">#aiart</a> <a href="/explore/tags/digitalart/">#digitalart</a></div>
+        <a class="time" href="/p/CCC333/">5 godz.</a>
+      </article>
+
+      <article data-test-id="4-hashtag-wielkie-litery" data-test-expect="hidden">
+        <header><a href="/pixel.dreams/" class="user">pixel.dreams</a></header>
+        <div class="media" style="--a:#e11d48;--b:#f97316"></div>
+        <div class="caption">Portret w stylu barokowym #MidJourney #portrait</div>
+        <a class="time" href="/p/DDD444/">6 godz.</a>
+      </article>
+
+      <article data-test-id="5-fraza-pl" data-test-expect="hidden">
+        <header><a href="/marek.grafik/" class="user">marek.grafik</a></header>
+        <div class="media" style="--a:#14b8a6;--b:#a855f7"></div>
+        <div class="caption">Ten obraz został wygenerowany przez AI, co myślicie?</div>
+        <a class="time" href="/p/EEE555/">8 godz.</a>
+      </article>
+
+      <article data-test-id="6-zablokowane-konto" data-test-expect="hidden">
+        <header><a href="/ai.art.daily/" class="user">ai.art.daily</a></header>
+        <div class="media" style="--a:#facc15;--b:#ec4899"></div>
+        <div class="caption">Dzień 214 🎨</div>
+        <a class="time" href="/p/FFF666/">9 godz.</a>
+      </article>
+
+      <article data-test-id="7-post-o-ai-nie-z-ai" data-test-expect="visible">
+        <header><a href="/tech.news.pl/" class="user">tech.news.pl</a></header>
+        <div class="media" style="--a:#334155;--b:#64748b"></div>
+        <div class="caption">Czytam o #ai i przyszłości pracy. Świetny tekst o tym, jak AI zmienia rynek.</div>
+        <a class="time" href="/p/GGG777/">10 godz.</a>
+      </article>
+
+      <article data-test-id="8-szkic-komentarza" data-test-expect="visible">
+        <header><a href="/ola.maluje/" class="user">ola.maluje</a></header>
+        <div class="media" style="--a:#fb7185;--b:#fde047"></div>
+        <div class="caption">Akwarela, 30×40 cm 🖌️</div>
+        <div class="comment-box" contenteditable="true">Piękne, ale czy to nie #aiart?</div>
+        <a class="time" href="/p/HHH888/">11 godz.</a>
+      </article>
+
+      <article data-test-id="9-airport-granica-slowa" data-test-expect="visible">
+        <header><a href="/podroznik/" class="user">podroznik</a></header>
+        <div class="media" style="--a:#38bdf8;--b:#1d4ed8"></div>
+        <div class="caption">Mainstream airport vibes ✈️ #travel #aircraft</div>
+        <a class="time" href="/p/III999/">12 godz.</a>
+      </article>
+
+      <article data-test-id="10-oznaczenie-konta" data-test-expect="hidden">
+        <header><a href="/repost.hub/" class="user">repost.hub</a></header>
+        <div class="media" style="--a:#a3e635;--b:#15803d"></div>
+        <div class="caption">Autor: <a href="/ai.art.daily/">@ai.art.daily</a> 🔁</div>
+        <a class="time" href="/p/JJJ000/">13 godz.</a>
+      </article>
+
+      <article data-test-id="14-etykieta-aria" data-test-expect="hidden">
+        <header><a href="/neon.city/" class="user">neon.city</a><button class="info" aria-label="AI info">ⓘ</button></header>
+        <div class="media" style="--a:#0f172a;--b:#db2777"></div>
+        <div class="caption">Nocny spacer</div>
+        <a class="time" href="/p/KKK111/">14 godz.</a>
+      </article>
+
+      <article data-test-id="15-alt-obrazka" data-test-expect="hidden">
+        <header><a href="/fantasy.realm/" class="user">fantasy.realm</a></header>
+        <img class="media" alt="Photo by fantasy.realm. May be digital art made with AI." src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'%3E%3Crect width='4' height='3' fill='%237c3aed'/%3E%3C/svg%3E">
+        <div class="caption">Smok nad górami 🐉</div>
+        <a class="time" href="/p/LLL222/">15 godz.</a>
+      </article>
+
+      <!-- Prawdziwy wygląd etykiety z Instagrama (12.11.2026): przycisk ze spanem, po polsku "SI". -->
+      <article data-test-id="17-etykieta-SI-pl" data-test-expect="hidden">
+        <header><a href="/alina.mock/" class="user">alina.mock</a><button class="info"><span>Treści utworzone przez SI</span></button></header>
+        <div class="media" style="--a:#fda4af;--b:#c084fc"></div>
+        <div class="caption">Dzień dobry ☀️… <span role="button">więcej</span></div>
+        <a class="time" href="/p/SIL001/">1 godz.</a>
+      </article>
+
+      <!-- Etykieta AI tylko w danych (ai_label_info), w kodzie strony nic. -->
+      <article data-test-id="18-dane-etykieta" data-test-expect="hidden">
+        <header><a href="/visual.dreams/" class="user">visual.dreams</a></header>
+        <div class="media" style="--a:#22d3ee;--b:#6366f1"></div>
+        <div class="caption">Wieczór w Tokio… <span role="button">więcej</span></div>
+        <a class="time" href="/p/SSR111/">2 godz.</a>
+      </article>
+
+      <!-- Hashtag schowany za "więcej" – jest tylko w pełnym opisie w danych. -->
+      <article data-test-id="19-dane-ukryty-hashtag" data-test-expect="hidden">
+        <header><a href="/sunset.club/" class="user">sunset.club</a></header>
+        <div class="media" style="--a:#fb923c;--b:#be123c"></div>
+        <div class="caption">Piękny zachód słońca nad… <span role="button">więcej</span></div>
+        <a class="time" href="/p/SSR222/">3 godz.</a>
+      </article>
+
+      <!-- Dane mówią: brak etykiety AI. -->
+      <article data-test-id="20-dane-czysty" data-test-expect="visible">
+        <header><a href="/piotr.foto/" class="user">piotr.foto</a></header>
+        <div class="media" style="--a:#4ade80;--b:#0f766e"></div>
+        <div class="caption">Tatry o świcie… <span role="button">więcej</span></div>
+        <a class="time" href="/p/SSR333/">4 godz.</a>
+      </article>
+
+      <!-- Wstawiony ZANIM dane przyjdą przez XHR (dane przyjdą później). -->
+      <article data-test-id="21-xhr-dane-po-dom" data-test-expect="hidden">
+        <header><a href="/later.data/" class="user">later.data</a></header>
+        <div class="media" style="--a:#a78bfa;--b:#f472b6"></div>
+        <div class="caption">Nowa seria… <span role="button">więcej</span></div>
+        <a class="time" href="/p/XHR555/">5 godz.</a>
+      </article>
+
+      <article data-test-id="13-zmiana-tekstu" data-test-expect="hidden">
+        <header><a href="/widoki.pl/" class="user">widoki.pl</a></header>
+        <div class="media" style="--a:#f472b6;--b:#818cf8"></div>
+        <div class="caption" id="changing">Ładny widok</div>
+        <a class="time" href="/p/MMM333/">16 godz.</a>
+      </article>
+
+    </div>
+    <aside class="side">
+      <p>Propozycje dla Ciebie</p>
+      <a href="/ai.art.daily/" data-test-id="16-sidebar" data-test-expect="visible">ai.art.daily</a>
+    </aside>
+  </main>
+
+  <!-- Dane osadzone w HTML, w kształcie jak na prawdziwym Instagramie. -->
+  <script type="application/json">{"require":[["RelayPrefetchedStreamCache","next",[],["adp_Feed",{"__bbox":{"result":{"data":{"xdt_api__v1__feed__timeline__connection":{"edges":[
+    {"node":{"media":{"code":"SSR111","pk":"1","user":{"username":"visual.dreams"},"caption":{"text":"Wieczór w Tokio, neony i deszcz."},"ai_label_info":{"attribution_label_text":"Treści utworzone przez SI","subtitle_text":"Treści utworzone przez SI"}}}},
+    {"node":{"media":{"code":"SSR222","pk":"2","user":{"username":"sunset.club"},"caption":{"text":"Piękny zachód słońca nad morzem, kolory jak z bajki 🌅\n.\n.\n#sunset #midjourney #art"},"ai_label_info":null}}},
+    {"node":{"media":{"code":"SSR333","pk":"3","user":{"username":"piotr.foto"},"caption":{"text":"Tatry o świcie, -12°C, warto było wstać o 4:00 #tatry #mountains"},"ai_label_info":null}}}
+  ]}}}}}]]]}</script>
+
+  <script src="../extension/shared/bot-score.js"></script>
+  <script src="../extension/shared/defaults.js"></script>
+  <script src="../extension/content/content.js"></script>
+  <script>
+    // Dane przychodzące przez XHR na /graphql/query (jak przy przewijaniu feedu).
+    setTimeout(() => {
+      const x = new XMLHttpRequest();
+      x.open('GET', '/test/graphql/query.json');
+      x.send();
+    }, 1500);
+    // Post, którego dane przyszły WCZEŚNIEJ niż jego kod HTML.
+    setTimeout(() => {
+      document.getElementById('feed').insertAdjacentHTML('beforeend', `
+        <article data-test-id="22-xhr-dom-po-danych" data-test-expect="hidden">
+          <header><a href="/early.data/" class="user">early.data</a></header>
+          <div class="media" style="--a:#facc15;--b:#0ea5e9"></div>
+          <div class="caption">Kolejny dzień… <span role="button">więcej</span></div>
+          <a class="time" href="/p/XHR444/">6 godz.</a>
+        </article>`);
+    }, 2600);
+    // Posty doczytywane podczas "przewijania" (sprawdza MutationObserver).
+    setTimeout(() => {
+      const feed = document.getElementById('feed');
+      feed.insertAdjacentHTML('beforeend', `
+        <article data-test-id="11-doczytany-ai" data-test-expect="hidden">
+          <header><a href="/sd.master/" class="user">sd.master</a></header>
+          <div class="media" style="--a:#f43f5e;--b:#7c3aed"></div>
+          <div class="caption">Wieczorny las <a href="/explore/tags/stablediffusion/">#stablediffusion</a></div>
+          <a class="time" href="/p/NNN444/">1 dzień</a>
+        </article>
+        <article data-test-id="12-doczytany-czysty" data-test-expect="visible">
+          <header><a href="/zosia.gotuje/" class="user">zosia.gotuje</a></header>
+          <div class="media" style="--a:#fbbf24;--b:#84cc16"></div>
+          <div class="caption">Pierogi ruskie, przepis w komentarzu 🥟 #foodie</div>
+          <a class="time" href="/p/OOO555/">1 dzień</a>
+        </article>`);
+    }, 1200);
+    // Tekst istniejącego posta zmienia się później (sprawdza characterData).
+    setTimeout(() => {
+      document.getElementById('changing').firstChild.nodeValue = 'Ładny widok – made with AI';
+    }, 2000);
+  </script>
+</body>
+</html>

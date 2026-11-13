@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Makieta – komentarze na Instagramie</title>
+  <link rel="stylesheet" href="/extension/content/content.css">
+  <link rel="stylesheet" href="/test/mock.css">
+  <style>
+    .post-page { width: 820px; max-width: 100%; }
+    .post-box { display: flex; background: #fff; border: 1px solid #dbdbdb; border-radius: 6px; }
+    .post-box .media-wrap { width: 420px; height: 560px; flex: none; }
+    .post-box .side { flex: 1; display: flex; flex-direction: column; color: #111; min-width: 0; }
+    .post-box .side header { padding: 12px; border-bottom: 1px solid #efefef; font-weight: 600; }
+    .post-box .side header a, .crow a { color: #111; font-weight: 600; text-decoration: none; }
+    .clist { padding: 8px 12px; display: flex; flex-direction: column; gap: 12px; overflow: auto; }
+    .crow { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+    .crow .av { width: 32px; height: 32px; border-radius: 50%; flex: none; }
+    .crow .meta { color: #737373; font-size: 12px; margin-top: 4px; display: flex; gap: 10px; }
+    .crow .meta a { color: #737373; font-weight: 400; }
+    .crow .txt a.mention { color: #00376b; font-weight: 400; }
+  </style>
+  <script>window.__AIB_SITE__ = 'instagram';</script>
+  <script src="/test/chrome-shim.js"></script>
+  <script src="/test/test-kit.js"></script>
+  <script src="/extension/content/page-hook.js"></script>
+</head>
+<body class="ig">
+  <main role="main">
+    <div class="post-page">
+      <section>
+        <!-- Układ jak na prawdziwym Instagramie (12.11.2026): lista komentarzy to zwykłe divy,
+             każdy wiersz = awatar + link do profilu + tekst. Pierwszy wiersz to opis autora. -->
+        <div class="post-box" data-test-id="p0-post-czysty" data-test-expect="visible">
+          <div class="media-wrap"><img alt="" style="width:100%;height:100%;display:block" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%230d9488'/%3E%3C/svg%3E"></div>
+          <div class="side">
+            <header><a href="/neon.muse/">neon.muse</a></header>
+            <div class="clist">
+              <div class="crow" data-test-id="c0-opis-autora" data-test-expect="nobot">
+                <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23a855f7'/%3E%3C/svg%3E">
+                <div class="txt"><a href="/neon.muse/">neon.muse</a> <span>Nowa sesja nad morzem 🌊 Link w bio 👆</span>
+                  <div class="meta"><a href="/p/POST777/"><time>3 godz.</time></a></div></div>
+              </div>
+              <div class="crow" data-test-id="c1-check-my-bio" data-test-expect="bot">
+                <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23f43f5e'/%3E%3C/svg%3E">
+                <div class="txt"><a href="/jessica_hot8821/">jessica_hot8821</a> <span>Check my bio 💋</span>
+                  <div class="meta"><a href="/p/POST777/c/1/"><time>2 godz.</time></a><span role="button">Odpowiedz</span></div></div>
+              </div>
+              <div class="crow" data-test-id="c2-pytanie" data-test-expect="nobot">
+                <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%2322c55e'/%3E%3C/svg%3E">
+                <div class="txt"><a href="/piotr.k/">piotr.k</a> <span>Piękne! Gdzie to robione?</span>
+                  <div class="meta"><a href="/p/POST777/c/2/"><time>2 godz.</time></a><span role="button">Liczba polubień: 3</span><span role="button">Odpowiedz</span></div></div>
+              </div>
+              <div class="crow" data-test-id="c3-dane-bot" data-test-expect="bot">
+                <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23cbd5e1'/%3E%3C/svg%3E">
+                <div class="txt"><a href="/fan83920/">fan83920</a> <span>Nice pic 🔥</span>
+                  <div class="meta"><a href="/p/POST777/c/3/"><time>3 godz.</time></a><span role="button">Odpowiedz</span></div></div>
+              </div>
+              <div class="crow" data-test-id="c4-zweryfikowany" data-test-expect="nobot">
+                <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23eab308'/%3E%3C/svg%3E">
+                <div class="txt"><a href="/kibic.official/">kibic.official</a> <span>Check my page, wywiad już jest 🔥</span>
+                  <div class="meta"><a href="/p/POST777/c/4/"><time>1 godz.</time></a><span role="button">Liczba polubień: 312</span></div></div>
+              </div>
+              <!-- Podobne (nie identyczne) teksty od jednego konta – jak prawdziwy zalew z 12.11.2026. -->
+              <div class="crow" data-test-id="c6-podobny-1" data-test-expect="bot">
+                <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23facc15'/%3E%3C/svg%3E">
+                <div class="txt"><a href="/fener.fan.x/">fener.fan.x</a> <span>Come to Fenerbahçe 💛💙</span></div>
+              </div>
+              <div class="crow" data-test-id="c7-podobny-2" data-test-expect="bot">
+                <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23facc15'/%3E%3C/svg%3E">
+                <div class="txt"><a href="/fener.fan.x/">fener.fan.x</a> <span>come to fenerbahce!!</span></div>
+              </div>
+              <div class="crow" data-test-id="c8-podobny-3" data-test-expect="bot">
+                <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23facc15'/%3E%3C/svg%3E">
+                <div class="txt"><a href="/fener.fan.x/">fener.fan.x</a> <span>COME TO FENERBAHCE 💛</span></div>
+              </div>
+              <div class="crow" data-test-id="c5-promocja" data-test-expect="bot">
+                <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%2338bdf8'/%3E%3C/svg%3E">
+                <div class="txt"><a href="/viral.promo.pages/">viral.promo.pages</a> <span>Promote it on <a class="mention" href="/viralpages/">@viralpages</a> 🔥</span>
+                  <div class="meta"><a href="/p/POST777/c/5/"><time>1 godz.</time></a></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Dane w kształcie jak na prawdziwym Instagramie: komentarz = {pk, text, created_at, comment_like_count,
+       child_comment_count, user: {username, is_verified, profile_pic_url}} -->
+  <script type="application/json">{"require":[["RelayPrefetchedStreamCache","next",[],["adp_PolarisPostRootQuery",{"__bbox":{"result":{"data":{"xdt_api__v1__media__shortcode__web_info":{"items":[
+    {"code":"POST777","pk":"777","taken_at":1794400000,"user":{"username":"neon.muse"},"caption":{"text":"Nowa sesja nad morzem 🌊 Link w bio 👆"},"ai_label_info":null}
+  ]},"xdt_api__v1__media__media_id__comments__connection":{"edges":[
+    {"node":{"pk":"c3","text":"Nice pic 🔥","created_at":1794400020,"comment_like_count":0,"child_comment_count":0,"user":{"username":"fan83920","is_verified":false,"profile_pic_url":"https://scontent.cdninstagram.com/v/t51.2885-19/44884218_345707102882519_2446069589734326272_n.jpg"}}},
+    {"node":{"pk":"c4","text":"Check my page, wywiad już jest 🔥","created_at":1794403600,"comment_like_count":312,"child_comment_count":4,"user":{"username":"kibic.official","is_verified":true,"profile_pic_url":"https://scontent.cdninstagram.com/v/t51.2885-19/123_n.jpg"}}},
+    {"node":{"pk":"c2","text":"Piękne! Gdzie to robione?","created_at":1794403000,"comment_like_count":3,"child_comment_count":0,"user":{"username":"piotr.k","is_verified":false,"profile_pic_url":"https://scontent.cdninstagram.com/v/t51.2885-19/456_n.jpg"}}}
+  ]}}}}}]]]}</script>
+
+  <script src="/extension/shared/bot-score.js"></script>
+  <script src="/extension/shared/defaults.js"></script>
+  <script src="/extension/content/content.js"></script>
+</body>
+</html>

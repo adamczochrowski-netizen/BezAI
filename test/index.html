@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bez AI – wszystkie testy</title>
+  <style>
+    :root { --bg: #f6f6f9; --card: #fff; --text: #16161d; --muted: #6b6b7a; --line: #e2e2e9; --ok: #15803d; --err: #b91c1c; --accent: #6d28d9; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #121217; --card: #1c1c24; --text: #ececf1; --muted: #9a9aab; --line: #2f2f3a; --ok: #4ade80; --err: #f87171; --accent: #8b5cf6; } }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, "Segoe UI", sans-serif; }
+    main { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+    h1 { margin: 0 0 4px; font-size: 22px; }
+    p.lead { margin: 0 0 16px; color: var(--muted); }
+    .bar { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+    button { padding: 8px 16px; border: 0; border-radius: 8px; background: var(--accent); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+    #summary { font-weight: 700; }
+    #summary.ok { color: var(--ok); } #summary.err { color: var(--err); }
+    table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+    th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    td.res { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    td.res.ok { color: var(--ok); } td.res.err { color: var(--err); } td.res.wait { color: var(--muted); }
+    td small { color: var(--muted); }
+    .fail { color: var(--err); font-size: 12.5px; }
+    iframe { width: 100%; height: 360px; margin-top: 14px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Bez AI – wszystkie testy na makietach</h1>
+    <p class="lead">Uruchamia po kolei każdą makietę w ramce poniżej i zbiera wynik. Czyści dane testowe na starcie.
+      Testy jednostkowe (ocena botów, listy) uruchamia się osobno w node – patrz README.</p>
+    <div class="bar"><button id="run" type="button">Uruchom wszystkie</button><span id="summary"></span></div>
+    <table>
+      <thead><tr><th>Makieta</th><th>Wynik</th><th>Co sprawdza</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <iframe id="frame" title="Aktualnie testowana makieta"></iframe>
+  </main>
+  <script>
+    // Kolejność ma znaczenie: MEM1→MEM2→MEM3 budują pamięć, shared-lists nadpisuje ustawienia (na końcu).
+    const PAGES = [
+      { url: 'facebook.html', wait: 2000, what: 'Facebook: posty, komentarze AI, okno komentarzy z botami, czat nietknięty' },
+      { url: 'instagram.html', wait: 4000, what: 'Instagram: feed, etykiety „przez SI”, dane posta (HTML i XHR), fałszywe alarmy' },
+      { url: 'p/POST999/', wait: 2000, what: 'Instagram: strona posta + siatka „Więcej postów” (rozmycie)' },
+      { url: 'p/POST777/', wait: 2000, what: 'Instagram: komentarze botów, dane komentarzy, podobne teksty' },
+      { url: 'threads-late.html', wait: 4000, what: 'Threads: atrybut posta doklejany później (poczekalnia sygnałów)' },
+      { url: 'p/MEM1/', wait: 4500, what: 'Pamięć między postami – 1. post (nic nie zwinięte)' },
+      { url: 'p/MEM2/', wait: 4500, what: 'Pamięć między postami – 2. post (nic nie zwinięte)' },
+      { url: 'p/MEM3/', wait: 4500, what: 'Pamięć między postami – 3. post (konto i farma zwinięte)' },
+      { url: 'shared-lists.html', wait: 2500, what: 'Wspólne listy kont: subskrypcja, zaufane konta, boty z listy' }
+    ];
+    const $ = (id) => document.getElementById(id);
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+    function renderRows() {
+      $('rows').textContent = '';
+      for (const p of PAGES) {
+        const tr = document.createElement('tr');
+        const a = document.createElement('td');
+        const link = document.createElement('a');
+        link.href = p.url;
+        link.textContent = p.url;
+        a.append(link);
+        const res = document.createElement('td');
+        res.className = 'res wait';
+        res.textContent = '–';
+        p.cell = res;
+        const what = document.createElement('td');
+        what.textContent = p.what;
+        p.whatCell = what;
+        tr.append(a, res, what);
+        $('rows').append(tr);
+      }
+    }
+
+    function load(url) {
+      return new Promise((resolve) => {
+        const f = $('frame');
+        f.onload = () => resolve(f);
+        f.src = url;
+      });
+    }
+
+    async function runAll() {
+      $('run').disabled = true;
+      localStorage.clear();
+      renderRows();
+      let okPages = 0, total = 0, passed = 0;
+      for (const p of PAGES) {
+        p.cell.textContent = 'trwa…';
+        const f = await load(p.url);
+        await sleep(p.wait);
+        let r;
+        try { r = f.contentWindow.__aibCheck(); } catch (e) { r = { pass: false, total: 0, failed: [{ id: 'błąd strony: ' + e.message }] }; }
+        total += r.total;
+        passed += r.total - r.failed.length;
+        if (r.pass) okPages++;
+        p.cell.className = 'res ' + (r.pass ? 'ok' : 'err');
+        p.cell.textContent = (r.pass ? 'OK ' : 'BŁĄD ') + (r.total - r.failed.length) + '/' + r.total;
+        if (!r.pass) {
+          const d = document.createElement('div');
+          d.className = 'fail';
+          d.textContent = 'Nie przeszło: ' + r.failed.map((x) => x.id + ' (chciano ' + x.want + ', jest ' + x.got + ')').join('; ');
+          p.whatCell.append(d);
+        }
+      }
+      const all = okPages === PAGES.length;
+      $('summary').className = all ? 'ok' : 'err';
+      $('summary').textContent = (all ? 'Wszystko OK: ' : 'Są błędy: ') + passed + '/' + total + ' przypadków, ' +
+        okPages + '/' + PAGES.length + ' makiet';
+      window.__aibRunAll = { all, passed, total, okPages, pages: PAGES.length };
+      $('run').disabled = false;
+    }
+
+    renderRows();
+    $('run').addEventListener('click', runAll);
+    if (location.hash === '#auto') runAll();
+  </script>
+</body>
+</html>

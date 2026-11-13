@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bez AI – ustawienia</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <header>
+      <img src="../icons/icon48.png" alt="" class="logo">
+      <div>
+        <h1>Bez AI – listy</h1>
+        <p>Jedna pozycja w linii. Zmiany działają od razu na otwartych kartach po kliknięciu „Zapisz”.</p>
+      </div>
+    </header>
+
+    <div id="lists"></div>
+
+    <div class="bar">
+      <button id="save" type="button">Zapisz</button>
+      <span id="saveMsg" role="status"></span>
+    </div>
+
+    <section class="shared" aria-labelledby="sharedTitle">
+      <h2 id="sharedTitle">Wspólne listy kont</h2>
+      <p class="lead">Listy kont AI i botów prowadzone przez innych – jak listy filtrów w uBlocku. Wtyczka pobiera je sama co 12 godzin.
+        Twoje „Zaufane konta” zawsze mają pierwszeństwo przed listami.</p>
+      <form id="addList" class="addlist">
+        <input id="listUrl" type="url" placeholder="https://…/lista.txt (może być zwykły link do pliku na GitHubie)" autocomplete="off" spellcheck="false" aria-label="Adres listy">
+        <button type="submit">Subskrybuj</button>
+      </form>
+      <p id="listMsg" class="msg" role="status"></p>
+      <div id="subs"></div>
+      <div class="actions">
+        <button type="button" id="refreshLists" class="ghost">Aktualizuj teraz</button>
+        <button type="button" id="exportList" class="ghost">Pobierz moje konta jako listę (.txt)</button>
+      </div>
+      <details>
+        <summary>Jak zrobić własną listę i dać ją innym</summary>
+        <ol>
+          <li>Dodaj konta do list „Zablokowane konta” i „Konta botów” powyżej i kliknij „Pobierz moje konta jako listę”.</li>
+          <li>Wrzuć plik do publicznego repozytorium na GitHubie albo do Gista.</li>
+          <li>Daj znajomym link do pliku – wklejają go tutaj i klikają „Subskrybuj”. Gdy zmienisz plik, ich wtyczki pobiorą zmiany same.</li>
+        </ol>
+        <pre>! Title: Moja lista
+[ai]
+instagram ai.art.daily
+https://www.instagram.com/inne.konto/
+nazwa.na.wszystkich.platformach
+[bot]
+instagram xjxjxjxjxj9</pre>
+      </details>
+    </section>
+
+    <section class="shared" aria-labelledby="memTitle">
+      <h2 id="memTitle">Pamięć botów między postami</h2>
+      <p class="lead">Wtyczka pamięta przez 7 dni, kto i co pisał pod oglądanymi postami, żeby wyłapać ten sam komentarz
+        wklejany pod różnymi postami i farmy kont. Zapisuje tylko skróty (hasze) – bez nazw kont, treści komentarzy
+        i adresów. Nic nie wychodzi poza ten komputer.</p>
+      <p id="memInfo" class="msg"></p>
+      <div class="actions">
+        <button type="button" id="clearMemory" class="ghost">Wyczyść pamięć</button>
+      </div>
+    </section>
+
+    <section class="note">
+      <h2>Jak to działa</h2>
+      <ul>
+        <li><b>Etykiety platform</b> – tekst, który Instagram, Facebook, TikTok czy YouTube same doklejają do treści AI. Musi się zgadzać dokładnie (wielkość liter bez znaczenia).</li>
+        <li><b>Hashtagi</b> – post jest ukrywany, jeśli ma którykolwiek z nich. Celowo nie ma tu samego <code>#ai</code>, bo oznaczałby też posty <em>o</em> AI.</li>
+        <li><b>Frazy</b> – szukane w opisie posta jako całe słowa, np. „made with ai”, „wygenerowane przez ai”.</li>
+        <li><b>Konta</b> – wszystko od tych kont (i posty, które je oznaczają). Możesz wkleić link do profilu.</li>
+        <li><b>Wspólne listy</b> – konta z subskrybowanych list działają jak Twoje własne. Pomyłkę na cudzej liście naprawisz, dodając konto do „Zaufanych kont”.</li>
+        <li><b>Komentarze botów</b> – każdy komentarz dostaje punkty: frazy botów (+4), podejrzane zwroty typu „DM me”, „zarobiłem dzięki pani…” (+2), link lub numer telefonu (+2), ten sam albo podobny tekst u wielu kont (+3/+4), ten sam komentarz pod 3+ postami (+4), konto wcześniej oznaczone jako bot (+2), ogólnik typu „Nice pic” (+2), brak zdjęcia profilowego (+2), komentarz w pierwszej minucie po publikacji (+2), dziwna nazwa konta (+1). Konto zweryfikowane (−6) i dużo polubień (−1/−3) obniżają wynik. Próg: łagodnie 6, średnio 4, ostro 3.</li>
+      </ul>
+      <p>Wtyczka nie wysyła nigdzie żadnych danych – wszystko dzieje się w Twojej przeglądarce.</p>
+    </section>
+  </main>
+
+  <script src="../shared/bot-score.js"></script>
+  <script src="../shared/defaults.js"></script>
+  <script src="../shared/lists.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

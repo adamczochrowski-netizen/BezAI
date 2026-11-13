@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Makieta – Threads (atrybut posta doklejany później)</title>
+  <link rel="stylesheet" href="../extension/content/content.css">
+  <link rel="stylesheet" href="mock.css">
+  <style>.post { padding: 12px; } .side { margin-top: 12px; }</style>
+  <script>window.__AIB_SITE__ = 'threads';</script>
+  <script src="chrome-shim.js"></script>
+  <script src="test-kit.js"></script>
+</head>
+<body>
+  <!-- Jak na prawdziwym Threads (12.11.2026): tekst posta jest od początku, a atrybut
+       data-pressable-container="true" pojawia się dopiero kilka sekund później (hydratacja). -->
+  <main>
+    <div class="feed" id="feed">
+      <div class="post js-post" data-test-id="t1-hashtag-pozniej" data-test-expect="hidden">
+        <a href="/@mglista.kreska">mglista.kreska</a> <span>Exhaustion. #ai #aiart #woman #figure #portrait</span>
+        <a href="/@mglista.kreska/post/DTHR001">7 godz.</a>
+      </div>
+      <div class="post js-post" data-test-id="t2-czysty" data-test-expect="visible">
+        <a href="/@kasia">kasia</a> <span>Spacer po lesie, jesień w pełni 🍂</span>
+        <a href="/@kasia/post/DTHR002">8 godz.</a>
+      </div>
+      <div class="post js-post" data-test-id="t3-fraza-pozniej" data-test-expect="hidden">
+        <a href="/@neon.paleta.art">neon.paleta.art</a> <span>Made with AI, prompt w komentarzu</span>
+        <a href="/@neon.paleta.art/post/DTHR003">9 godz.</a>
+      </div>
+    </div>
+    <!-- Poza postem: nigdy nie dostanie kontenera, więc nic nie może zostać ukryte. -->
+    <div class="side" data-test-id="t4-poza-postem" data-test-expect="visible">Popularne: #aiart</div>
+  </main>
+
+  <script src="../extension/shared/bot-score.js"></script>
+  <script src="../extension/shared/defaults.js"></script>
+  <script src="../extension/shared/lists.js"></script>
+  <script src="../extension/content/content.js"></script>
+  <script>
+    setTimeout(() => {
+      for (const p of document.querySelectorAll('.js-post')) p.setAttribute('data-pressable-container', 'true');
+      window.__attrSetAt = Date.now();
+    }, 2000);
+  </script>
+</body>
+</html>

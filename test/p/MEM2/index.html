@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Makieta – pamięć botów</title>
+  <link rel="stylesheet" href="/extension/content/content.css">
+  <link rel="stylesheet" href="/test/mock.css">
+  <style>
+    .post-box { display: flex; width: 820px; background: #fff; border: 1px solid #dbdbdb; border-radius: 6px; }
+    .media-wrap { width: 420px; height: 520px; flex: none; }
+    .side { flex: 1; min-width: 0; color: #111; }
+    .side header { padding: 12px; border-bottom: 1px solid #efefef; font-weight: 600; }
+    .clist { padding: 8px 12px; display: flex; flex-direction: column; gap: 12px; }
+    .crow { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+    .crow .av { width: 32px; height: 32px; border-radius: 50%; flex: none; }
+    .crow a { color: #111; font-weight: 600; text-decoration: none; }
+  </style>
+  <script>
+    window.__AIB_SITE__ = 'instagram';
+    // Ta sama makieta pod trzema adresami: /test/p/MEM1/, MEM2, MEM3.
+    window.__CODE__ = (location.pathname.match(/MEM\d/) || ['MEM1'])[0];
+    const n = Number(window.__CODE__.slice(3));
+    window.__FARM__ = ['farm.acc.one', 'farm.acc.two', 'farm.acc.three'][n - 1];
+    // Oczekiwania: zwinięcie dopiero przy trzecim poście.
+    window.__EXPECT__ = { A: n >= 3 ? 'bot' : 'nobot', B: n >= 3 ? 'bot' : 'nobot' };
+  </script>
+  <script src="/test/chrome-shim.js"></script>
+  <script src="/test/test-kit.js"></script>
+  <script src="/extension/content/page-hook.js"></script>
+</head>
+<body class="ig">
+  <main role="main">
+    <section>
+      <div class="post-box">
+        <div class="media-wrap"><img alt="" style="width:100%;height:100%;display:block" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23475569'/%3E%3C/svg%3E"></div>
+        <div class="side">
+          <header><a href="/some.creator/">some.creator</a></header>
+          <div class="clist">
+            <div class="crow">
+              <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23a855f7'/%3E%3C/svg%3E">
+              <div><a href="/some.creator/">some.creator</a> <span>Kolejny dzień w górach 🏔️</span></div>
+            </div>
+            <div class="crow" id="rowA" data-test-id="A-to-samo-konto-pod-postami">
+              <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23f43f5e'/%3E%3C/svg%3E">
+              <div><a href="/quote.daily/">quote.daily</a> <span>Follow me for daily motivation quotes and tips</span></div>
+            </div>
+            <div class="crow" id="rowB" data-test-id="B-farma-kont">
+              <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23f59e0b'/%3E%3C/svg%3E">
+              <div><a id="farmLink" href="/farm/">farm</a> <span>This changed my life completely, everyone should see this today</span></div>
+            </div>
+            <div class="crow" data-test-id="C-czlowiek" data-test-expect="nobot">
+              <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%2322c55e'/%3E%3C/svg%3E">
+              <div><a href="/kasia.k/">kasia.k</a> <span id="kasiaText">Piękne zdjęcie, gdzie to było?</span></div>
+            </div>
+            <div class="crow" data-test-id="D-zyczenia-pod-postami" data-test-expect="nobot">
+              <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%2338bdf8'/%3E%3C/svg%3E">
+              <div><a href="/ciocia.ola/">ciocia.ola</a> <span>Wszystkiego najlepszego z okazji urodzin!</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    // Konto farmy i oczekiwania zależą od adresu (przed startem wtyczki).
+    document.getElementById('farmLink').setAttribute('href', '/' + window.__FARM__ + '/');
+    document.getElementById('farmLink').textContent = window.__FARM__;
+    // Człowiek pisze pod każdym postem co innego.
+    document.getElementById('kasiaText').textContent = ['Piękne zdjęcie, gdzie to było?', 'Ale widok! Byłam tam rok temu',
+      'Super, zazdroszczę wyjazdu'][Number(window.__CODE__.slice(3)) - 1];
+    document.getElementById('rowA').setAttribute('data-test-expect', window.__EXPECT__.A);
+    document.getElementById('rowB').setAttribute('data-test-expect', window.__EXPECT__.B);
+  </script>
+  <script src="/extension/shared/bot-score.js"></script>
+  <script src="/extension/shared/defaults.js"></script>
+  <script src="/extension/shared/lists.js"></script>
+  <script src="/extension/content/content.js"></script>
+</body>
+</html>

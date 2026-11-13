@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Makieta – strona posta Instagram</title>
+  <link rel="stylesheet" href="/extension/content/content.css">
+  <link rel="stylesheet" href="/test/mock.css">
+  <style>
+    .post-page { width: 760px; max-width: 100%; }
+    .post-box { display: flex; background: #fff; border: 1px solid #dbdbdb; border-radius: 6px; }
+    .post-box .media-wrap { width: 420px; height: 520px; }
+    .post-box .media-wrap .media { width: 100%; height: 100%; aspect-ratio: auto; }
+    .post-box .side { width: 340px; display: flex; flex-direction: column; color: #111; }
+    .post-box .side header { padding: 12px; border-bottom: 1px solid #efefef; font-weight: 600; }
+    .post-box .side .cap { padding: 12px; flex: 1; }
+    .more h3 { font-size: 14px; color: #737373; margin: 28px 0 10px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+    .grid a { display: block; aspect-ratio: 1; }
+    .grid img { width: 100%; height: 100%; display: block; object-fit: cover; }
+  </style>
+  <script>window.__AIB_SITE__ = 'instagram';</script>
+  <script src="/test/chrome-shim.js"></script>
+  <script src="/test/test-kit.js"></script>
+  <script src="/extension/content/page-hook.js"></script>
+</head>
+<body class="ig">
+  <main role="main">
+    <div class="post-page">
+      <!-- Blok posta rośnie w górę przez opakowania tej samej wysokości – oznaczona zostaje <section>. -->
+      <section data-test-id="30-strona-posta" data-test-expect="hidden">
+        <div class="post-box">
+          <div class="media-wrap"><img alt="" style="width:100%;height:100%;display:block" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%237c3aed'/%3E%3C/svg%3E"></div>
+          <div class="side">
+            <header>neon.muse</header>
+            <div class="cap">Księżyc nad miastem 🌙 (opis bez żadnych sygnałów AI)</div>
+          </div>
+        </div>
+      </section>
+      <div class="more">
+        <h3>Więcej postów od neon.muse</h3>
+        <div class="grid">
+          <a href="/p/TILE01/" data-test-id="31-kafelek-ai" data-test-expect="hidden"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%230ea5e9'/%3E%3C/svg%3E"></a>
+          <a href="/p/TILE02/" data-test-id="32-kafelek-czysty" data-test-expect="visible"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%2322c55e'/%3E%3C/svg%3E"></a>
+          <a href="/p/TILE03/" data-test-id="33-kafelek-czysty" data-test-expect="visible"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%23f59e0b'/%3E%3C/svg%3E"></a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="application/json">{"require":[["RelayPrefetchedStreamCache","next",[],["adp_PolarisPostRootQuery",{"__bbox":{"result":{"data":{"xdt_api__v1__media__shortcode__web_info":{"items":[
+    {"code":"POST999","pk":"999","user":{"username":"neon.muse"},"caption":{"text":"Księżyc nad miastem 🌙"},"ai_label_info":{"attribution_label_text":"Treści utworzone przez SI","subtitle_text":"Treści utworzone przez SI"}}
+  ]},"xdt_api__v1__more_posts":{"items":[
+    {"code":"TILE01","user":{"username":"neon.muse"},"caption":{"text":"..."},"ai_label_info":{"attribution_label_text":"Treści utworzone przez SI"}},
+    {"code":"TILE02","user":{"username":"neon.muse"},"caption":{"text":"spacer"},"ai_label_info":null},
+    {"code":"TILE03","user":{"username":"neon.muse"},"caption":{"text":"kawa"},"ai_label_info":null}
+  ]}}}}}]]]}</script>
+
+  <script src="/extension/shared/bot-score.js"></script>
+  <script src="/extension/shared/defaults.js"></script>
+  <script src="/extension/content/content.js"></script>
+</body>
+</html>

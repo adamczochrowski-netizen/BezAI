@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Bez AI</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="top">
+    <img src="../icons/icon48.png" alt="" class="logo">
+    <div class="title">
+      <strong>Bez AI</strong>
+      <span>Filtr treści generowanych przez AI</span>
+    </div>
+    <label class="switch" title="Włącz / wyłącz wtyczkę">
+      <input type="checkbox" id="enabled">
+      <span aria-hidden="true"></span>
+    </label>
+  </header>
+
+  <p id="status" class="status"></p>
+
+  <section class="stats">
+    <div><b id="tabCount">–</b><span>posty AI na karcie</span></div>
+    <div><b id="botCount">–</b><span>boty na karcie</span></div>
+    <div><b id="total">0</b><span>łącznie</span></div>
+  </section>
+
+  <section>
+    <h2>Co robić z treściami AI</h2>
+    <div class="seg" role="radiogroup" aria-label="Tryb">
+      <label><input type="radio" name="mode" value="hide"><span>Ukryj</span></label>
+      <label><input type="radio" name="mode" value="blur"><span>Rozmyj</span></label>
+    </div>
+    <p class="hint" id="modeHint"></p>
+  </section>
+
+  <section>
+    <h2>Wykrywaj po</h2>
+    <label class="row"><input type="checkbox" id="detectLabels"><span>Etykietach platform <small>„Treści utworzone przez SI”</small></span></label>
+    <label class="row"><input type="checkbox" id="detectHashtags"><span>Hashtagach <small id="nHashtags"></small></span></label>
+    <label class="row"><input type="checkbox" id="detectKeywords"><span>Słowach kluczowych <small id="nKeywords"></small></span></label>
+    <label class="row"><input type="checkbox" id="detectAccounts"><span>Kontach z list <small id="nAccounts"></small></span></label>
+  </section>
+
+  <section>
+    <h2>Komentarze botów</h2>
+    <label class="row"><input type="checkbox" id="detectBots"><span>Wykrywaj boty w komentarzach <small>spam, oszustwa, kopiuj-wklej</small></span></label>
+    <div class="sub" id="botOptions">
+      <span class="sublabel">Czułość</span>
+      <div class="seg seg3" role="radiogroup" aria-label="Czułość">
+        <label><input type="radio" name="botSensitivity" value="low"><span>Łagodnie</span></label>
+        <label><input type="radio" name="botSensitivity" value="medium"><span>Średnio</span></label>
+        <label><input type="radio" name="botSensitivity" value="high"><span>Ostro</span></label>
+      </div>
+      <p class="hint" id="botHint"></p>
+      <span class="sublabel">Co robić</span>
+      <div class="seg" role="radiogroup" aria-label="Co robić z komentarzami botów">
+        <label><input type="radio" name="botMode" value="collapse"><span>Zwiń</span></label>
+        <label><input type="radio" name="botMode" value="hide"><span>Ukryj</span></label>
+      </div>
+      <label class="row"><input type="checkbox" id="botMemory"><span>Pamiętaj między postami <small>7 dni, tylko na tym komputerze</small></span></label>
+    </div>
+  </section>
+
+  <section>
+    <h2>Zablokuj konto</h2>
+    <form id="addAccount" class="add">
+      <input id="accountInput" placeholder="@nazwa albo link do profilu" autocomplete="off" spellcheck="false">
+      <button type="submit">Dodaj</button>
+    </form>
+    <p class="hint" id="addMsg"></p>
+  </section>
+
+  <section>
+    <h2>Działaj na stronach</h2>
+    <div class="chips" id="sites"></div>
+  </section>
+
+  <footer>
+    <a href="#" id="openOptions">Edytuj listy hashtagów, fraz, kont i botów →</a>
+  </footer>
+
+  <script src="../shared/bot-score.js"></script>
+  <script src="../shared/defaults.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

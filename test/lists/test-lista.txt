@@ -1,0 +1,14 @@
+! Title: Testowa wspólna lista
+! Updated: 2026-11-12
+! Lista do makiety test/shared-lists.html
+
+[ai]
+instagram ai.shared.example
+https://www.instagram.com/link.form.example/
+every.platform
+facebook fb.only.account
+instagram trusted.in.list        ! jest na liście, ale użytkownik ma je w "Zaufanych kontach"
+myspace nieznana.platforma
+
+[bot]
+instagram spam.shared.bot

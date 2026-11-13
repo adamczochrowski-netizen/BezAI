@@ -1,0 +1,60 @@
+{
+  "manifest_version": 3,
+  "name": "Bez AI – filtr treści AI",
+  "short_name": "Bez AI",
+  "version": "0.5.2",
+  "minimum_chrome_version": "111",
+  "description": "Ukrywa lub rozmywa posty wygenerowane przez AI na Instagramie, Facebooku, Threads, X, YouTube i Reddicie.",
+  "permissions": ["storage", "alarms"],
+  "optional_host_permissions": ["https://*/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Bez AI",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.instagram.com/*",
+        "*://*.threads.com/*",
+        "*://*.threads.net/*"
+      ],
+      "js": ["content/page-hook.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "*://*.instagram.com/*",
+        "*://*.facebook.com/*",
+        "*://*.threads.com/*",
+        "*://*.threads.net/*",
+        "*://*.x.com/*",
+        "*://*.twitter.com/*",
+        "*://*.youtube.com/*",
+        "*://*.reddit.com/*"
+      ],
+      "js": ["shared/bot-score.js", "shared/defaults.js", "shared/lists.js", "content/content.js"],
+      "css": ["content/content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
