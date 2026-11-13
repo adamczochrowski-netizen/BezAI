@@ -46,7 +46,15 @@
       // good, yet") – tylko rozmywamy. Temat wpisu wybrany przez autora (link "AI Art" obok nazwy konta,
       // /search?q=AI%20Art&serp_type=tags) liczy się w pełni.
       topicSoft: true,
-      authorSel: 'a[href*="serp_type=tags"]'
+      authorSel: 'a[href*="serp_type=tags"]',
+      // Odpowiedzi na stronie wpisu (/@konto/post/KOD), sprawdzone na żywo 13.11.2026: każda odpowiedź to osobny
+      // kontener w sekcji data-pagelet="threads_post_page_…". Pod spodem są "Powiązane wątki" (obce wpisy,
+      // data-pagelet="threads_logged_out_related_posts") – tych nie oceniamy.
+      commentSelector: 'div[data-pressable-container="true"]',
+      commentPath: /^\/@?[^/]+\/post\/[^/]+/,
+      commentScope: '[data-pagelet^="threads_post_page"]',
+      // Pasek pod odpowiedzią: Polub, Skomentuj, Opublikuj ponownie, Udostępnij – liczba polubień przy pierwszej ikonie.
+      likesFromActions: 4
     },
     // topicSoft: tytuły i wpisy często są *o* AI (newsy, recenzje, dyskusje), a nie *z* AI –
     //   frazy tematyczne ("ai art", "midjourney") tylko rozmywają, zamiast ukrywać.

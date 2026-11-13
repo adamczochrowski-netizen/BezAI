@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Makieta – Threads: odpowiedzi pod wpisem</title>
+  <link rel="stylesheet" href="/extension/content/content.css">
+  <link rel="stylesheet" href="/test/mock.css">
+  <style>
+    [data-pressable-container] { padding: 10px 14px; border-bottom: 1px solid #e5e5e5; }
+    .who a { color: #000; font-weight: 600; text-decoration: none; }
+    .who time { color: #999; margin-left: 6px; font-size: 13px; }
+    .bar { display: flex; gap: 14px; margin-top: 6px; color: #666; font-size: 13px; }
+    .bar svg { width: 16px; height: 16px; vertical-align: -3px; }
+    h3 { margin: 18px 14px 6px; font-size: 14px; color: #777; }
+  </style>
+  <script>window.__AIB_SITE__ = 'threads';</script>
+  <script src="/test/chrome-shim.js"></script>
+  <script src="/test/test-kit.js"></script>
+</head>
+<body>
+  <!-- Adres /test/post/THR123/ udaje stronę wpisu na Threads (/@konto/post/KOD): autor wpisu = "test".
+       Struktura jak na prawdziwym Threads (13.11.2026): odpowiedzi w sekcji data-pagelet="threads_post_page_…",
+       pod spodem "Powiązane wątki" (obce wpisy). Ikony mają podpisy <title> jak na stronie. Konta i teksty wymyślone. -->
+  <template id="bar">
+    <div class="bar">
+      <div role="button"><svg role="img"><title>Polub</title></svg> <span class="n"></span></div>
+      <div role="button"><svg role="img"><title>Skomentuj</title></svg></div>
+      <div role="button"><svg role="img"><title>Opublikuj ponownie</title></svg></div>
+      <div role="button"><svg role="img"><title>Udostępnij</title></svg></div>
+    </div>
+  </template>
+
+  <main>
+    <div data-pagelet="threads_post_page_0">
+      <!-- Wpis, na który odpowiada wpis główny – nad nim, to nie odpowiedź. -->
+      <div data-pressable-container="true" data-test-id="h0-wpis-nad-glownym" data-test-expect="nobot" data-likes="3">
+        <div class="who"><a href="/@sklep.promo">sklep.promo</a> <a href="/@sklep.promo/post/THR100"><time>1 godz.</time></a></div>
+        <div><span>Check my bio, link in bio 🔥 zarobiłem 3000 zł</span></div>
+      </div>
+    </div>
+    <div data-pagelet="threads_post_page_1">
+      <div data-pressable-container="true" data-test-id="h1-wpis-glowny" data-test-expect="nobot" data-likes="1339">
+        <div class="who"><a href="/@test">test</a> <a href="/test/post/THR123"><time>3 dni</time></a></div>
+        <div><span>Pavlova z bezą – pierwsza próba! Przepis w bio 🍰</span></div>
+      </div>
+    </div>
+    <div data-pagelet="threads_post_page_{n}">
+      <div data-pressable-container="true" data-test-id="h2-sprawdz-bio" data-test-expect="bot" data-likes="0">
+        <div class="who"><a href="/@hot.anna_8812">hot.anna_8812</a> <a href="/@hot.anna_8812/post/THR201"><time>3 dni</time></a></div>
+        <div><span>Check my bio for a surprise 😘💋</span></div>
+      </div>
+      <div data-pressable-container="true" data-test-id="h3-szablon-1" data-test-expect="bot" data-likes="0">
+        <div class="who"><a href="/@maria.k_77231">maria.k_77231</a> <a href="/@maria.k_77231/post/THR202"><time>3 dni</time></a></div>
+        <div><span>I lost my savings to a scam but @recovery.jane helped me recover my funds, she is the best!</span></div>
+      </div>
+      <div data-pressable-container="true" data-test-id="h4-zwykla" data-test-expect="nobot" data-likes="7">
+        <div class="who"><a href="/@gosia.piecze">gosia.piecze</a> <svg role="img"><title>Zweryfikowano</title></svg> <a href="/@gosia.piecze/post/THR203"><time>3 dni</time></a></div>
+        <div><span>Wygląda pysznie! Ile cukru dajesz?</span></div>
+      </div>
+      <div data-pressable-container="true" data-test-id="h5-szablon-2" data-test-expect="bot" data-likes="0">
+        <div class="who"><a href="/@john_smith88410">john_smith88410</a> <a href="/@john_smith88410/post/THR204"><time>3 dni</time></a></div>
+        <div><span>I lost my savings to a scam but @recovery.jane helped me recover my funds, she is the best!!</span></div>
+      </div>
+      <div data-pressable-container="true" data-test-id="h6-autor-odpowiada" data-test-expect="nobot" data-likes="12">
+        <div class="who"><a href="/@test">test</a> <a href="/@test/post/THR205"><time>3 dni</time></a></div>
+        <div><span>Dzięki! Przepis w bio, link w bio 😊</span></div>
+      </div>
+      <div data-pressable-container="true" data-test-id="h7-szablon-3" data-test-expect="bot" data-likes="0">
+        <div class="who"><a href="/@lucy.w_51190">lucy.w_51190</a> <a href="/@lucy.w_51190/post/THR206"><time>2 dni</time></a></div>
+        <div><span>i lost my savings to a scam, but @recovery.jane helped me recover my funds. She is the best</span></div>
+      </div>
+      <!-- Popularna odpowiedź: "DM me" + "great content" to 4 pkt (bot), ale 1,2 tys. polubień z paska obniża wynik. -->
+      <div data-pressable-container="true" data-test-id="h8-popularna" data-test-expect="nobot" data-likes="1,2 tys.">
+        <div class="who"><a href="/@kuchnia.bartka">kuchnia.bartka</a> <a href="/@kuchnia.bartka/post/THR207"><time>3 dni</time></a></div>
+        <div><span>DM me the recipe 😂 great content</span></div>
+      </div>
+    </div>
+
+    <h3>Powiązane wątki</h3>
+    <div data-pagelet="threads_logged_out_related_posts">
+      <div data-pressable-container="true" data-test-id="h10-powiazany-watek" data-test-expect="nobot" data-likes="0">
+        <div class="who"><a href="/@obcy.spam">obcy.spam</a> <a href="/@obcy.spam/post/THR300"><time>8 godz.</time></a></div>
+        <div><span>Check my bio for a surprise 😘💋</span></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Pasek akcji pod każdym wpisem, jak na Threads; liczba polubień przy pierwszej ikonie (pusta = 0).
+    const tpl = document.getElementById('bar');
+    for (const row of document.querySelectorAll('[data-pressable-container]')) {
+      const bar = tpl.content.firstElementChild.cloneNode(true);
+      const n = row.getAttribute('data-likes');
+      if (n && n !== '0') bar.querySelector('.n').textContent = n;
+      row.append(bar);
+    }
+  </script>
+  <script src="/extension/shared/bot-score.js"></script>
+  <script src="/extension/shared/defaults.js"></script>
+  <script src="/extension/shared/lists.js"></script>
+  <script src="/extension/content/content.js"></script>
+</body>
+</html>

@@ -349,6 +349,8 @@
     while ((n = walker.nextNode())) {
       const p = n.parentElement;
       if (!p || SKIP_TAGS.has(p.tagName)) continue;
+      // Podpisy ikon (<svg><title>Zweryfikowano</title>, "Polub" na Threads) to nie treść komentarza.
+      if (p.closest('svg')) continue;
       if (site.commentSelector && p.closest(site.commentSelector) !== row) continue; // odpowiedzi pod spodem
       const ctl = p.closest('a, button, [role="button"], time');
       if (ctl && row.contains(ctl)) {
@@ -388,12 +390,60 @@
 
   // Liczba polubień z przycisku (X: aria-label "12 Likes. Like" / "12 polubień…").
   function domLikes(row) {
+    if (site.likesFromActions) return actionBarLikes(row, site.likesFromActions);
     if (!site.likesSel) return undefined;
     const b = row.querySelector(site.likesSel);
     const m = b && /^\s*(\d[\d\s.,]*)/.exec(b.getAttribute('aria-label') || '');
     if (!m) return undefined;
     const n = parseInt(m[1].replace(/\D/g, ''), 10);
     return Number.isFinite(n) ? n : undefined;
+  }
+
+  // "7", "1,2 tys.", "3.4K", "2 mln" → liczba.
+  function parseCount(s) {
+    const m = /(\d+(?:[.,]\d+)?)\s*(tys|k|mln|m)?/i.exec(String(s || '').replace(/ /g, ' '));
+    if (!m) return null;
+    let n = parseFloat(m[1].replace(',', '.'));
+    const u = (m[2] || '').toLowerCase();
+    if (u === 'tys' || u === 'k') n *= 1000;
+    else if (u === 'mln' || u === 'm') n *= 1000000;
+    return Math.round(n);
+  }
+
+  // Threads: ikony paska akcji są zawsze ostatnie w wierszu, polubienia przy pierwszej z nich.
+  // Bez liczby przy ikonie = 0 polubień. Działa niezależnie od języka strony.
+  function actionBarLikes(row, icons) {
+    const svgs = row.querySelectorAll('svg');
+    if (svgs.length < icons) return undefined;
+    const btn = svgs[svgs.length - icons].closest('[role="button"], button');
+    if (!btn || !row.contains(btn)) return undefined;
+    const n = parseCount(btn.textContent);
+    return n === null ? 0 : n;
+  }
+
+  // Strona wpisu (X, Threads): nad wpisem bywają wpisy, na które on odpowiada – to nie odpowiedzi pod nim.
+  let mainRowCache = null;
+  function mainRow() {
+    const path = location.pathname.replace(/\/+$/, '');
+    if (mainRowCache && mainRowCache.path === path && mainRowCache.el && mainRowCache.el.isConnected) return mainRowCache.el;
+    let el = null;
+    const last = path.split('/').pop();
+    if (!last) return null;
+    for (const a of document.querySelectorAll('a[href*="' + CSS.escape(last) + '"]')) {
+      let p = '';
+      try { p = new URL(a.getAttribute('href'), location.href).pathname.replace(/\/+$/, ''); } catch (e) { continue; }
+      if (p !== path) continue;
+      el = a.closest(site.commentSelector);
+      if (el) break;
+    }
+    mainRowCache = el ? { path, el } : null;
+    return el;
+  }
+
+  function isAboveMain(row) {
+    if (!site.commentPath || !site.commentSelector) return false;
+    const main = mainRow();
+    return !!(main && main !== row && (main.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_PRECEDING));
   }
 
   function findCommentData(user, nt) {
@@ -422,7 +472,8 @@
       else if (u !== user) others.add(u);
     }
     // Opis autora posta (na Instagramie to pierwszy "komentarz" na liście) – nie oceniamy.
-    if (user && user === postOwnerFor(row)) {
+    // Tak samo wpisy nad wpisem głównym (rozmowa, na którą on odpowiada) i wiersze bez autora.
+    if ((user && user === postOwnerFor(row)) || isAboveMain(row) || (!user && site.commentPath)) {
       if (row.hasAttribute('data-aib-bot')) unmarkBot(row);
       return;
     }

@@ -1,4 +1,4 @@
-# Bez AI – filtr treści AI i komentarzy botów (prototyp 0.8.1)
+# Bez AI – filtr treści AI i komentarzy botów (prototyp 0.9)
 
 Rozszerzenie do Chrome/Edge, które automatycznie **ukrywa** albo **rozmywa** posty wygenerowane przez AI na:
 Instagramie, Facebooku, Threads, X (Twitterze), YouTube i Reddicie (w przeglądarce na komputerze).
@@ -107,12 +107,12 @@ kliknięcie go rozwija. Można też wybrać „Ukryj” (znika całkiem).
 | Link albo numer telefonu w komentarzu | +2 |
 | Ogólnik „od zasięgów”: „Nice pic”, „Great content”, „Keep it up” | +2 |
 | Masowe oznaczanie (3+ kont) | +2 |
-| Instagram i X: brak zdjęcia profilowego | +2 |
+| Instagram, Threads i X: brak zdjęcia profilowego | +2 |
 | Instagram: komentarz w pierwszej minucie po publikacji | +2 |
 | Dziwna nazwa konta (np. `anna83920`, `xjxjxjxjxj9`; rok urodzenia i imiona typu „barbara” się nie liczą) | +1 |
 | Same emoji / pusty ogólnik („Fajne”, „Wow 🔥”) / styl komentarza AI | +1 |
 | Instagram: konto zweryfikowane | −6 |
-| Instagram i X: dużo polubień komentarza (20+ / 100+) | −1 / −3 |
+| Instagram, Threads i X: dużo polubień komentarza (20+ / 100+) | −1 / −3 |
 
 **„Ten sam tekst” znaczy też „podobny”:** przed porównaniem tekst jest ujednolicany – bez polskich znaków
 i akcentów, emoji, interpunkcji i wielkości liter, a oznaczenia @, linki i liczby są zamieniane na zaślepki.
@@ -133,7 +133,8 @@ Zabezpieczenia przed pomyłkami:
 
 Gdzie działa: Instagram (strona posta, wiersze komentarzy + dane komentarzy), Facebook (komentarze
 w feedzie i w oknie komentarzy), X (odpowiedzi na stronie wpisu – od 0.8; płatny znaczek i szybka odpowiedź
-nie są tu sygnałem, bo na X ma je większość ludzi), YouTube i Reddit (eksperymentalnie).
+nie są tu sygnałem, bo na X ma je większość ludzi), Threads (odpowiedzi na stronie wpisu – od 0.9;
+wpisy nad wpisem głównym i „Powiązane wątki” pod spodem nie są oceniane), YouTube i Reddit (eksperymentalnie).
 
 ## Wspólne listy kont
 
@@ -182,6 +183,8 @@ bez platformy = wszystkie. `!` albo `#` zaczyna komentarz.
   a wpisy z tematem „AI Art” ukryte.
 - **YouTube, „ai generated music video” (13.11):** poradnik ukryty przez opis „Create Your Own AI Music Video
   https://tolt.link/…” (kropka w linku przecinała zdanie) i przeoczony „(A.I. Generated Music Video)” – oba poprawione w 0.8.1.
+- **Threads, odpowiedzi pod wpisem (13.11):** 0 z 25 prawdziwych odpowiedzi ludzi (3 wpisy) zwiniętych;
+  bez logowania Threads pokazuje tylko kilkanaście pierwszych odpowiedzi, więc boty sprawdzone na makiecie.
 - **X, odpowiedzi pod wpisem (13.11):** żaden człowiek nie zwinięty; odpowiedź z obrazkiem oznaczonym przez X
   „Made with AI” ukryta.
 - **X:** 20/20 tweetów z #aiart ukrytych. **YouTube:** strona główna, wyniki, shorts i komentarze działają.
@@ -225,14 +228,14 @@ bez platformy = wszystkie. `!` albo `#` zaczyna komentarz.
   zaktualizować w `shared/bot-score.js` i `content/page-hook.js`.
 - YouTube: ukrywa miniatury na listach (po tytule, hashtagu, kanale), ale nie samą stronę oglądania.
 - Threads, X, YouTube i Reddit są **eksperymentalne** – Threads, X i YouTube sprawdzone na żywo tylko
-  częściowo, Reddit wcale. Na Threads nie ma jeszcze oceny botów w odpowiedziach.
+  częściowo, Reddit wcale.
 - Meta i inne serwisy często zmieniają kod stron. Jeśli coś przestanie działać, trzeba poprawić
   selektory w `extension/shared/defaults.js` (sekcja `SITES`).
 - „Ukryto łącznie” liczy też ponownie te same posty po odświeżeniu strony.
 
 ## Testy
 
-Wszystkie makiety naraz (137 przypadków na 14 makietach): uruchom serwer jak niżej i otwórz
+Wszystkie makiety naraz (147 przypadków na 15 makietach): uruchom serwer jak niżej i otwórz
 http://localhost:8791/test/index.html → „Uruchom wszystkie”.
 
 Makiety z automatycznym sprawdzaniem (pasek u góry pokazuje „OK x/y”). Serwer uruchom w głównym folderze repozytorium:
@@ -305,6 +308,5 @@ test/                  – makiety stron i atrapa API chrome.* do testów
 
 ## Pomysły na dalej
 
-- Ocena botów w odpowiedziach na Threads.
 - Wersja dla Firefoksa (również na Androida).
 - Opcjonalny lokalny detektor obrazów jako tryb „tylko rozmyj podejrzane”.
