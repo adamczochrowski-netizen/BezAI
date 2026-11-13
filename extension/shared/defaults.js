@@ -52,7 +52,13 @@
       topicSoft: true,
       // Nazwa konta: "Miku AI Art", "AI art gallery" – konto samo mówi, że publikuje AI (sprawdzone
       // na żywo 13.11.2026), więc fraza w nazwie liczy się w pełni, a nie tylko jako temat.
-      authorSel: '[data-testid="User-Name"]'
+      authorSel: '[data-testid="User-Name"]',
+      // Odpowiedzi pod wpisem (strona /konto/status/123) oceniamy jak komentarze; autor wpisu = z adresu.
+      // Na X prawie każdy ma płatny znaczek i fani odpowiadają w kilkadziesiąt sekund – tych sygnałów nie liczymy.
+      commentSelector: 'article[data-testid="tweet"]',
+      commentPath: /^\/[^/]+\/status\/\d+/,
+      commentTextSel: '[data-testid="tweetText"]',
+      likesSel: '[data-testid="like"], [data-testid="unlike"]'
     },
     youtube: {
       name: 'YouTube',
@@ -398,6 +404,7 @@
     PROJECT_LIST_URL,
     accountFromLink,
     accountLabel,
-    setAccountStatus
+    setAccountStatus,
+    NOT_ACCOUNT
   };
 })();

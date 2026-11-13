@@ -1,4 +1,4 @@
-# Bez AI – filtr treści AI i komentarzy botów (prototyp 0.7)
+# Bez AI – filtr treści AI i komentarzy botów (prototyp 0.8)
 
 Rozszerzenie do Chrome/Edge, które automatycznie **ukrywa** albo **rozmywa** posty wygenerowane przez AI na:
 Instagramie, Facebooku, Threads, X (Twitterze), YouTube i Reddicie (w przeglądarce na komputerze).
@@ -105,12 +105,12 @@ kliknięcie go rozwija. Można też wybrać „Ukryj” (znika całkiem).
 | Link albo numer telefonu w komentarzu | +2 |
 | Ogólnik „od zasięgów”: „Nice pic”, „Great content”, „Keep it up” | +2 |
 | Masowe oznaczanie (3+ kont) | +2 |
-| Instagram: brak zdjęcia profilowego | +2 |
+| Instagram i X: brak zdjęcia profilowego | +2 |
 | Instagram: komentarz w pierwszej minucie po publikacji | +2 |
 | Dziwna nazwa konta (np. `anna83920`, `xjxjxjxjxj9`; rok urodzenia i imiona typu „barbara” się nie liczą) | +1 |
 | Same emoji / pusty ogólnik („Fajne”, „Wow 🔥”) / styl komentarza AI | +1 |
 | Instagram: konto zweryfikowane | −6 |
-| Instagram: dużo polubień komentarza (20+ / 100+) | −1 / −3 |
+| Instagram i X: dużo polubień komentarza (20+ / 100+) | −1 / −3 |
 
 **„Ten sam tekst” znaczy też „podobny”:** przed porównaniem tekst jest ujednolicany – bez polskich znaków
 i akcentów, emoji, interpunkcji i wielkości liter, a oznaczenia @, linki i liczby są zamieniane na zaślepki.
@@ -130,7 +130,8 @@ Zabezpieczenia przed pomyłkami:
 - lista „To nie boty” (np. znajomi) i lista „Konta botów” w ustawieniach.
 
 Gdzie działa: Instagram (strona posta, wiersze komentarzy + dane komentarzy), Facebook (komentarze
-w feedzie i w oknie komentarzy), YouTube i Reddit (eksperymentalnie, bez sprawdzenia na żywo).
+w feedzie i w oknie komentarzy), X (odpowiedzi na stronie wpisu – od 0.8; płatny znaczek i szybka odpowiedź
+nie są tu sygnałem, bo na X ma je większość ludzi), YouTube i Reddit (eksperymentalnie).
 
 ## Wspólne listy kont
 
@@ -215,14 +216,14 @@ bez platformy = wszystkie. `!` albo `#` zaczyna komentarz.
   zaktualizować w `shared/bot-score.js` i `content/page-hook.js`.
 - YouTube: ukrywa miniatury na listach (po tytule, hashtagu, kanale), ale nie samą stronę oglądania.
 - Threads, X, YouTube i Reddit są **eksperymentalne** – Threads, X i YouTube sprawdzone na żywo tylko
-  częściowo, Reddit wcale. Na X i Threads nie ma jeszcze oceny botów w odpowiedziach.
+  częściowo, Reddit wcale. Na Threads nie ma jeszcze oceny botów w odpowiedziach.
 - Meta i inne serwisy często zmieniają kod stron. Jeśli coś przestanie działać, trzeba poprawić
   selektory w `extension/shared/defaults.js` (sekcja `SITES`).
 - „Ukryto łącznie” liczy też ponownie te same posty po odświeżeniu strony.
 
 ## Testy
 
-Wszystkie makiety naraz (118 przypadków na 12 makietach): uruchom serwer jak niżej i otwórz
+Wszystkie makiety naraz (129 przypadków na 13 makietach): uruchom serwer jak niżej i otwórz
 http://localhost:8791/test/index.html → „Uruchom wszystkie”.
 
 Makiety z automatycznym sprawdzaniem (pasek u góry pokazuje „OK x/y”). Serwer uruchom w głównym folderze repozytorium:
@@ -247,7 +248,7 @@ Potem otwórz:
 - http://localhost:8791/test/shared-lists.html – wspólne listy (9 przypadków: konto z listy, link do profilu,
   „wszystkie platformy”, konto tylko z Facebooka, zaufane konto mimo listy, bot ze wspólnej listy)
 
-Testy samej oceny botów (35 przypadków + 6 testów podobieństwa tekstów, m.in. prawdziwy zalew
+Testy samej oceny botów (40 przypadków + 6 testów podobieństwa tekstów, m.in. prawdziwy zalew
 „Come to Fenerbahçe”, życzenia pod wieloma postami, pytania, oznaczenia znajomych) i parsera wspólnych list (13 sprawdzeń):
 
 ```bash
@@ -295,6 +296,6 @@ test/                  – makiety stron i atrapa API chrome.* do testów
 
 ## Pomysły na dalej
 
-- Ocena botów w odpowiedziach na X i Threads.
+- Ocena botów w odpowiedziach na Threads.
 - Wersja dla Firefoksa (również na Androida).
 - Opcjonalny lokalny detektor obrazów jako tryb „tylko rozmyj podejrzane”.

@@ -42,7 +42,13 @@ const cases = [
   ['bot: wcześniej oznaczony + ogólnik od zasięgów', { text: 'Great content, keep it up', user: 'promo.page', knownBot: true }, true],
   ['człowiek: wcześniej oznaczony, ale normalny tekst', { text: 'Byłem tam w zeszłym roku', user: 'kuba', knownBot: true }, false],
   ['czułość: ostro łapie słabszy przypadek', { text: 'Nice pic 🔥', user: 'kasia83xk' }, true, { sensitivity: 'high' }],
-  ['czułość: łagodnie przepuszcza średni', { text: 'Nice pic 🔥', user: 'user84736251', defaultPic: true }, false, { sensitivity: 'low' }]
+  ['czułość: łagodnie przepuszcza średni', { text: 'Nice pic 🔥', user: 'user84736251', defaultPic: true }, false, { sensitivity: 'low' }],
+  // Odpowiedzi na X (wzorowane na prawdziwych odpowiedziach z 13.11.2026)
+  ['X bot: przypięty wpis', { text: 'Check my pinned post 🔥💋', user: 'hot_anna_8812' }, true],
+  ['X bot: "odzyskiwanie" konta', { text: '@recoverypro_mike helped me recover my hacked account in 2 days', user: 'linda.w' }, true],
+  ['X człowiek: zwykła odpowiedź', { text: 'Grok bot is a solid workhorse.', user: 'dogetipper', likes: 12 }, false],
+  ['X człowiek: ogólnik z dużą liczbą polubień', { text: 'Love it 🔥', user: 'fan_of_tesla', likes: 250 }, false],
+  ['X człowiek: "samotna" w zwykłym zdaniu', { text: 'Samotna wyprawa w Tatry była najlepszą decyzją', user: 'gosia_gory' }, false]
 ];
 
 let failed = 0;

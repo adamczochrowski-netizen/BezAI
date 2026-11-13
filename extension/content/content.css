@@ -24,6 +24,11 @@ html[data-aib-mode] [data-aib-bot="collapse"]:not([data-aib-revealed])::after {
   font-style: italic !important;
   cursor: pointer !important;
   white-space: normal !important;
+  /* Pasek na całą szerokość także wtedy, gdy wiersz jest siatką albo rzędem flex (np. odpowiedzi na X). */
+  grid-column: 1 / -1 !important;
+  flex: 1 1 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
 }
 
 /* Tryb "Ukryj" */

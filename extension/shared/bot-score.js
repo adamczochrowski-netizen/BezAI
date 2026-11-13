@@ -12,7 +12,10 @@
     'gain followers', 'hot pics', 'see my photos', 'my private pics', 'onlyfans', 'fansly',
     'link w bio', 'sprawdź mój profil', 'sprawdz moj profil', 'zajrzyj na mój profil',
     'wejdź na mój profil', 'wejdz na moj profil', 'zapraszam na mój profil', 'zapraszam na priv',
-    'napisz priv', 'pisz priv', 'darmowi obserwujący', 'darmowe polubienia', 'kup obserwujących'
+    'napisz priv', 'pisz priv', 'darmowi obserwujący', 'darmowe polubienia', 'kup obserwujących',
+    // Typowe dla botów w odpowiedziach na X:
+    'check my pinned', 'look at my pinned', 'see my pinned', 'my pinned post', 'my pinned tweet',
+    'check my media', 'recovery expert', 'helped me recover', 'recover my hacked', 'claim your airdrop'
   ];
 
   // Podejrzane, ale ludzie też tak piszą: +2.
@@ -22,7 +25,8 @@
     'dzięki pani', 'dzięki panu', 'earned $', 'made $', 'profit', 'i invested', 'investment',
     'account manager', 'crypto', 'bitcoin', 'forex', 'trading', 'zarobiłem', 'zarobiłam', 'zarobić',
     'inwestycj', 'kryptowalut', 'telegram', 'whatsapp', '18+', 'randki', 'poznaj mnie',
-    'moje zdjęcia', 'zobacz moje'
+    'moje zdjęcia', 'zobacz moje', 'airdrop', 'giveaway', 'presale', 'whitelist spot', 'sugar daddy',
+    'sugar mommy', 'wanna chat', 'want to chat', 'chat with me', 'so lonely', 'samotna', 'samotny'
   ];
 
   // Ogólniki typowe dla botów "od zasięgów": +2.
@@ -53,7 +57,8 @@
 
   // Puste (domyślne) zdjęcie profilowe Instagrama – identyfikatory plików.
   // 573323465_… – sprawdzone na żywo 12.11.2026 (szara sylwetka, .png); 44884218_… – starszy wariant.
-  const DEFAULT_PIC_RE = /573323465_1219825463302212_7278921664109726296_n|44884218_345707102882519_2446069589734326272_n/;
+  // Puste awatary: Instagram (nazwa pliku) i X ("default_profile_images").
+  const DEFAULT_PIC_RE = /573323465_1219825463302212_7278921664109726296_n|44884218_345707102882519_2446069589734326272_n|default_profile_images/;
 
   const THRESHOLDS = { low: 6, medium: 4, high: 3 };
   const LINK_RE = /(https?:\/\/|www\.|t\.me\/|wa\.me\/|bit\.ly\/|linktr\.ee|\.com\/|\.ru\/)/i;

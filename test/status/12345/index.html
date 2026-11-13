@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Makieta – X: odpowiedzi pod wpisem</title>
+  <link rel="stylesheet" href="/extension/content/content.css">
+  <link rel="stylesheet" href="/test/mock.css">
+  <style>
+    article[data-testid="tweet"] { padding: 10px 14px; display: grid; grid-template-columns: 40px 1fr; gap: 2px 10px; }
+    [data-testid="Tweet-User-Avatar"] { grid-row: span 4; }
+    [data-testid="Tweet-User-Avatar"] img { width: 40px; height: 40px; border-radius: 50%; background: #cbd5e1; }
+    [data-testid="User-Name"] { display: flex; gap: 6px; font-size: 14px; }
+    [data-testid="User-Name"] a { color: #0f1419; text-decoration: none; font-weight: 700; }
+    [data-testid="User-Name"] a + a, [data-testid="User-Name"] time, .reply-to { color: #536471; font-weight: 400; font-size: 13px; }
+    .reply-to a { color: #1d9bf0; text-decoration: none; }
+    button[data-testid] { justify-self: start; border: 0; background: none; color: #536471; font-size: 12px; }
+  </style>
+  <script>window.__AIB_SITE__ = 'x';</script>
+  <script src="/test/chrome-shim.js"></script>
+  <script src="/test/test-kit.js"></script>
+</head>
+<body>
+  <!-- Adres /test/status/12345/ udaje stronę wpisu na X: autor wpisu = "test" (z adresu).
+       Struktura jak na prawdziwym X (13.11.2026); konta i teksty wymyślone. -->
+  <main role="main">
+    <div class="feed">
+      <article data-testid="tweet" data-test-id="r0-wpis-autora" data-test-expect="nobot">
+        <div data-testid="Tweet-User-Avatar"><a href="/test"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"></a></div>
+        <div data-testid="User-Name"><a href="/test"><span>Konto testowe</span></a><a href="/test">@test</a><a href="/test/status/12345"><time datetime="2026-11-13T08:00:00.000Z">8:00</time></a></div>
+        <div data-testid="tweetText"><span>Give it your most laborious tasks! Check my pinned post for details</span></div>
+        <button data-testid="like" aria-label="2956 Likes. Like">2,9 tys.</button>
+      </article>
+
+      <article data-testid="tweet" data-test-id="r1-przypiety-wpis" data-test-expect="bot">
+        <div data-testid="Tweet-User-Avatar"><a href="/hot_anna_8812"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3C!--default_profile_images--%3E%3C/svg%3E"></a></div>
+        <div data-testid="User-Name"><a href="/hot_anna_8812"><span>Anna 💋</span></a><a href="/hot_anna_8812">@hot_anna_8812</a><a href="/hot_anna_8812/status/20001"><time datetime="2026-11-13T08:00:20.000Z">20 s</time></a></div>
+        <div class="reply-to">W odpowiedzi do <a href="/test">@test</a></div>
+        <div data-testid="tweetText"><span>Check my pinned post 🔥💋</span></div>
+        <button data-testid="like" aria-label="0 Likes. Like"></button>
+      </article>
+
+      <article data-testid="tweet" data-test-id="r2-szablon-oszustwa-1" data-test-expect="bot">
+        <div data-testid="Tweet-User-Avatar"><a href="/daniel_w_trades"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"></a></div>
+        <div data-testid="User-Name"><a href="/daniel_w_trades"><span>Daniel W</span></a><a href="/daniel_w_trades">@daniel_w_trades</a><a href="/daniel_w_trades/status/20002"><time datetime="2026-11-13T08:03:00.000Z">3 min</time></a></div>
+        <div class="reply-to">W odpowiedzi do <a href="/test">@test</a></div>
+        <div data-testid="tweetText"><span>I made $5000 in a week thanks to </span><a href="/fx_mentor_amy">@fx_mentor_amy</a><span>, she is legit 🙏</span></div>
+        <button data-testid="like" aria-label="1 Like. Like">1</button>
+      </article>
+
+      <article data-testid="tweet" data-test-id="r3-szablon-oszustwa-2" data-test-expect="bot">
+        <div data-testid="Tweet-User-Avatar"><a href="/sarah_k_life"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"></a></div>
+        <div data-testid="User-Name"><a href="/sarah_k_life"><span>Sarah K</span></a><a href="/sarah_k_life">@sarah_k_life</a><a href="/sarah_k_life/status/20003"><time datetime="2026-11-13T08:05:00.000Z">5 min</time></a></div>
+        <div class="reply-to">W odpowiedzi do <a href="/test">@test</a></div>
+        <div data-testid="tweetText"><span>I made $7000 in a week thanks to </span><a href="/fx_mentor_amy">@fx_mentor_amy</a><span>, she is legit!!</span></div>
+        <button data-testid="like" aria-label="0 Likes. Like"></button>
+      </article>
+
+      <article data-testid="tweet" data-test-id="r4-szablon-oszustwa-3" data-test-expect="bot">
+        <div data-testid="Tweet-User-Avatar"><a href="/mike_r_1990"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"></a></div>
+        <div data-testid="User-Name"><a href="/mike_r_1990"><span>Mike R</span></a><a href="/mike_r_1990">@mike_r_1990</a><a href="/mike_r_1990/status/20004"><time datetime="2026-11-13T08:09:00.000Z">9 min</time></a></div>
+        <div class="reply-to">W odpowiedzi do <a href="/test">@test</a></div>
+        <div data-testid="tweetText"><span>I made $3000 in a week thanks to </span><a href="/fx_mentor_amy">@fx_mentor_amy</a><span> she is legit 💯</span></div>
+        <button data-testid="like" aria-label="0 Likes. Like"></button>
+      </article>
+
+      <article data-testid="tweet" data-test-id="r5-zwykla-odpowiedz" data-test-expect="nobot">
+        <div data-testid="Tweet-User-Avatar"><a href="/dogetipper"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"></a></div>
+        <div data-testid="User-Name"><a href="/dogetipper"><span>Doge Tipping</span></a><a href="/dogetipper">@dogetipper</a><a href="/dogetipper/status/20005"><time datetime="2026-11-13T08:13:20.000Z">13 min</time></a></div>
+        <div class="reply-to">W odpowiedzi do <a href="/test">@test</a></div>
+        <div data-testid="tweetText"><span>Grok bot is a solid workhorse.</span></div>
+        <button data-testid="like" aria-label="12 Likes. Like">12</button>
+      </article>
+
+      <article data-testid="tweet" data-test-id="r6-ogolnik-popularny" data-test-expect="nobot">
+        <div data-testid="Tweet-User-Avatar"><a href="/fan_of_tesla"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"></a></div>
+        <div data-testid="User-Name"><a href="/fan_of_tesla"><span>Tesla Fan</span></a><a href="/fan_of_tesla">@fan_of_tesla</a><a href="/fan_of_tesla/status/20006"><time datetime="2026-11-13T08:00:33.000Z">33 s</time></a></div>
+        <div class="reply-to">W odpowiedzi do <a href="/test">@test</a></div>
+        <div data-testid="tweetText"><span>Love it 🔥</span></div>
+        <button data-testid="like" aria-label="250 Likes. Like">250</button>
+      </article>
+
+      <article data-testid="tweet" data-test-id="r7-samo-zdjecie" data-test-expect="nobot">
+        <div data-testid="Tweet-User-Avatar"><a href="/the_keeper"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"></a></div>
+        <div data-testid="User-Name"><a href="/the_keeper"><span>The Keeper</span></a><a href="/the_keeper">@the_keeper</a><a href="/the_keeper/status/20007"><time datetime="2026-11-13T08:16:25.000Z">16 min</time></a></div>
+        <div class="reply-to">W odpowiedzi do <a href="/test">@test</a></div>
+        <div class="media" style="--a:#94a3b8;--b:#e2e8f0;aspect-ratio:16/9"></div>
+        <button data-testid="like" aria-label="2 Likes. Like">2</button>
+      </article>
+
+      <article data-testid="tweet" data-test-id="r8-hashtag-to-nie-konto" data-test-expect="nobot">
+        <div data-testid="Tweet-User-Avatar"><a href="/semi_watcher"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"></a></div>
+        <div data-testid="User-Name"><a href="/semi_watcher"><span>Semi Watcher</span></a><a href="/semi_watcher">@semi_watcher</a><a href="/semi_watcher/status/20008"><time datetime="2026-11-13T08:20:00.000Z">20 min</time></a></div>
+        <div class="reply-to">W odpowiedzi do <a href="/test">@test</a></div>
+        <div data-testid="tweetText"><a href="/hashtag/Tesla">#Tesla</a><span> rocks, </span><a href="/hashtag/Semi">#Semi</a><span> next, </span><a href="/hashtag/EV">#EV</a></div>
+        <button data-testid="like" aria-label="3 Likes. Like">3</button>
+      </article>
+
+      <article data-testid="tweet" data-test-id="r9-autor-odpowiada" data-test-expect="nobot">
+        <div data-testid="Tweet-User-Avatar"><a href="/test"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"></a></div>
+        <div data-testid="User-Name"><a href="/test"><span>Konto testowe</span></a><a href="/test">@test</a><a href="/test/status/20009"><time datetime="2026-11-13T08:30:00.000Z">30 min</time></a></div>
+        <div class="reply-to">W odpowiedzi do <a href="/dogetipper">@dogetipper</a></div>
+        <div data-testid="tweetText"><span>Thanks! Check my pinned post 🙏</span></div>
+        <button data-testid="like" aria-label="40 Likes. Like">40</button>
+      </article>
+    </div>
+  </main>
+
+  <script src="/extension/shared/bot-score.js"></script>
+  <script src="/extension/shared/defaults.js"></script>
+  <script src="/extension/shared/lists.js"></script>
+  <script src="/extension/content/content.js"></script>
+</body>
+</html>

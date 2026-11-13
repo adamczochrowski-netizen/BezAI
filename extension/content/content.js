@@ -284,7 +284,12 @@
       return m[1].toLowerCase();
     }
     const c = AIB.accountCandidatesFromUrl(url)[0];
-    return c && !RESERVED_PATHS.has(c) ? c : null;
+    return c && !RESERVED_PATHS.has(c) && !AIB.NOT_ACCOUNT.has(c) ? c : null;
+  }
+
+  // Na X odpowiedzi oceniamy tylko na stronie wpisu (/konto/status/123).
+  function commentsHere() {
+    return !site.commentPath || site.commentPath.test(location.pathname);
   }
 
   function hasProfileLink(el) {
@@ -319,7 +324,7 @@
 
   function commentRowOf(node) {
     const el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
-    if (!el) return null;
+    if (!el || !commentsHere()) return null;
     if (site.commentSelector) {
       const c = el.closest(site.commentSelector);
       return c && (!site.commentScope || c.closest(site.commentScope)) ? c : null;
@@ -330,6 +335,11 @@
 
   // Sam tekst komentarza – bez nazwy autora, czasu i przycisków ("Odpowiedz", "Lubię to").
   function commentText(row) {
+    if (site.commentTextSel) {
+      // X: sama treść odpowiedzi (bez nazwy, "@konto", "W odpowiedzi do…"); odpowiedź z samym zdjęciem = pusta.
+      const el = row.querySelector(site.commentTextSel);
+      return el ? (el.textContent || '').replace(/\s+/g, ' ').trim() : '';
+    }
     const parts = [];
     const walker = document.createTreeWalker(row, NodeFilter.SHOW_TEXT);
     let n;
@@ -355,6 +365,11 @@
   }
 
   function postOwnerFor(row) {
+    if (site.commentPath) {
+      // X: każda odpowiedź to osobny <article> – autor wpisu jest w adresie strony.
+      const m = /^\/@?([^/]+)\//.exec(location.pathname);
+      return m ? m[1].toLowerCase() : null;
+    }
     const art = row.closest('article, [aria-posinset]');
     if (art) {
       for (const a of art.querySelectorAll('a[href]')) {
@@ -366,6 +381,16 @@
     const code = codeFromPath(location.pathname);
     const it = code && mediaItems.get(code);
     return it && it.user ? String(it.user).toLowerCase() : null;
+  }
+
+  // Liczba polubień z przycisku (X: aria-label "12 Likes. Like" / "12 polubień…").
+  function domLikes(row) {
+    if (!site.likesSel) return undefined;
+    const b = row.querySelector(site.likesSel);
+    const m = b && /^\s*(\d[\d\s.,]*)/.exec(b.getAttribute('aria-label') || '');
+    if (!m) return undefined;
+    const n = parseInt(m[1].replace(/\D/g, ''), 10);
+    return Number.isFinite(n) ? n : undefined;
   }
 
   function findCommentData(user, nt) {
@@ -463,7 +488,7 @@
       knownBot,
       verified: d ? d.verified : false,
       defaultPic: (d && d.defaultPic) || domDefaultPic,
-      likes: d && typeof d.likes === 'number' ? d.likes : undefined,
+      likes: d && typeof d.likes === 'number' ? d.likes : domLikes(row),
       delaySec: d && takenAt ? d.createdAt - takenAt : undefined
     }, botOpts);
 
@@ -528,6 +553,8 @@
   function postIdFor(row) {
     const code = codeFromPath(location.pathname);
     if (code) return 'c:' + code;
+    const sm = site.commentPath && site.commentPath.exec(location.pathname);
+    if (sm) return 'u:' + sm[0];
     const post = row.closest('article, [aria-posinset], shreddit-post');
     const a = post && post.querySelector(PERMALINK_SEL);
     if (a) {
@@ -621,6 +648,7 @@
   }
 
   function scanComments(root) {
+    if (!commentsHere()) return;
     const rows = new Set();
     const inside = commentRowOf(root);
     if (inside) rows.add(inside);
