@@ -133,6 +133,8 @@ h2 {
 }
 .row input { margin: 2px 0 0; accent-color: var(--accent); }
 .row small { color: var(--muted); margin-left: 2px; }
+.row.indent { padding: 0 0 4px 22px; }
+.row.indent.off { opacity: .45; pointer-events: none; }
 
 .add { display: flex; gap: 6px; }
 .add input {

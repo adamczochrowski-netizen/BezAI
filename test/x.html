@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Makieta – X (nazwy kont i opinie o AI)</title>
+  <link rel="stylesheet" href="../extension/content/content.css">
+  <link rel="stylesheet" href="mock.css">
+  <style>
+    article[data-testid="tweet"] { padding: 10px 14px; }
+    [data-testid="User-Name"] { display: flex; gap: 6px; font-size: 14px; }
+    [data-testid="User-Name"] a { color: #0f1419; text-decoration: none; font-weight: 700; }
+    [data-testid="User-Name"] a + a { color: #536471; font-weight: 400; }
+    [data-testid="tweetText"] { margin-top: 4px; }
+  </style>
+  <script>window.__AIB_SITE__ = 'x';</script>
+  <script src="chrome-shim.js"></script>
+  <script src="test-kit.js"></script>
+</head>
+<body>
+  <!-- Struktura jak na prawdziwym X (13.11.2026): nazwa konta w [data-testid="User-Name"], tekst w [data-testid="tweetText"].
+       Nazwy kont i teksty wymyślone, wzorowane na wynikach wyszukiwania "ai art". -->
+  <main>
+    <div class="feed">
+      <article data-testid="tweet" data-test-id="x1-konto-ai-art-w-nazwie" data-test-expect="hidden">
+        <div data-testid="User-Name"><a href="/miku_kreacje"><span>Miku｜AI Art</span></a><a href="/miku_kreacje">@miku_kreacje</a></div>
+        <div data-testid="tweetText"><span>Thank you</span></div>
+      </article>
+
+      <article data-testid="tweet" data-test-id="x2-opinia-o-ai-art" data-test-expect="weak">
+        <div data-testid="User-Name"><a href="/ola_rysuje"><span>Ola</span></a><a href="/ola_rysuje">@ola_rysuje</a></div>
+        <div data-testid="tweetText"><span>AI art is never "more perfect". That's what I'm addressing</span></div>
+      </article>
+
+      <article data-testid="tweet" data-test-id="x3-pytanie" data-test-expect="visible">
+        <div data-testid="User-Name"><a href="/dev_tom"><span>Dev Tom</span></a><a href="/dev_tom">@dev_tom</a></div>
+        <div data-testid="tweetText"><span>people judging ai art sounds harder than just training models, tho?</span></div>
+      </article>
+
+      <article data-testid="tweet" data-test-id="x4-hashtag" data-test-expect="hidden">
+        <div data-testid="User-Name"><a href="/pixel_witch"><span>Pixel Witch</span></a><a href="/pixel_witch">@pixel_witch</a></div>
+        <div data-testid="tweetText"><span>New piece! </span><a href="/hashtag/aiart">#aiart</a> <a href="/hashtag/midjourney">#midjourney</a></div>
+      </article>
+
+      <article data-testid="tweet" data-test-id="x5-konto-o-narzedziach" data-test-expect="visible">
+        <div data-testid="User-Name"><a href="/ai_tools_news"><span>AI News | AI Art &amp; Tools</span></a><a href="/ai_tools_news">@ai_tools_news</a></div>
+        <div data-testid="tweetText"><span>Have fun! Happy Coachella.</span></div>
+      </article>
+
+      <article data-testid="tweet" data-test-id="x6-czysty" data-test-expect="visible">
+        <div data-testid="User-Name"><a href="/kasia_pl"><span>Kasia</span></a><a href="/kasia_pl">@kasia_pl</a></div>
+        <div data-testid="tweetText"><span>Spacer po lesie 🍂</span></div>
+      </article>
+    </div>
+  </main>
+
+  <script src="../extension/shared/bot-score.js"></script>
+  <script src="../extension/shared/defaults.js"></script>
+  <script src="../extension/shared/lists.js"></script>
+  <script src="../extension/content/content.js"></script>
+</body>
+</html>

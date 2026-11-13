@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Makieta – YouTube (treści o AI i z AI)</title>
+  <link rel="stylesheet" href="../extension/content/content.css">
+  <link rel="stylesheet" href="mock.css">
+  <style>
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; padding: 16px; max-width: 1100px; margin: 0 auto; }
+    ytd-rich-item-renderer, ytd-video-renderer { display: block; background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid #e5e5e5; }
+    ytd-video-renderer .media { aspect-ratio: 16 / 9; }
+    ytd-video-renderer h3 { margin: 8px 12px 2px; font-size: 15px; }
+    ytd-video-renderer > div:not(.media), ytd-expandable-metadata-renderer { display: block; margin: 4px 12px 10px; color: #606060; font-size: 13px; }
+    ytd-rich-item-renderer .media { aspect-ratio: 16 / 9; }
+    ytd-rich-item-renderer h3 { margin: 8px 12px 2px; font-size: 15px; }
+    ytd-rich-item-renderer h3 a { color: #0f0f0f; text-decoration: none; }
+    ytd-rich-item-renderer .ch { display: block; margin: 0 12px; color: #606060; font-size: 13px; text-decoration: none; }
+    ytd-rich-item-renderer .meta { display: block; margin: 0 12px 10px; }
+  </style>
+  <script>window.__AIB_SITE__ = 'youtube';</script>
+  <script src="chrome-shim.js"></script>
+  <script src="test-kit.js"></script>
+</head>
+<body>
+  <!-- Tytuły jak na prawdziwym YouTube. "Is AI-Generated Art Original?" ukrywała wersja 0.5.1 (sprawdzone na żywo 12.11.2026). -->
+  <div class="grid" id="grid">
+    <ytd-rich-item-renderer data-test-id="y1-pytanie-o-ai" data-test-expect="visible">
+      <div class="media" style="--a:#64748b;--b:#0ea5e9"></div>
+      <h3><a href="/watch?v=yt00000001"><yt-formatted-string>Is AI-Generated Art Original?</yt-formatted-string></a></h3>
+      <a class="ch" href="/@artphilosophy">Art Philosophy</a><span class="meta">48 tys. wyświetleń · 2 dni temu</span>
+    </ytd-rich-item-renderer>
+
+    <ytd-rich-item-renderer data-test-id="y2-recenzja" data-test-expect="visible">
+      <div class="media" style="--a:#1e293b;--b:#a855f7"></div>
+      <h3><a href="/watch?v=yt00000002"><yt-formatted-string>Midjourney V7 full review and tutorial</yt-formatted-string></a></h3>
+      <a class="ch" href="/@techreviews">Tech Reviews</a><span class="meta">120 tys. wyświetleń · 1 tydz. temu</span>
+    </ytd-rich-item-renderer>
+
+    <ytd-rich-item-renderer data-test-id="y3-ai-generated-bez-dyskusji" data-test-expect="hidden">
+      <div class="media" style="--a:#f472b6;--b:#fb923c"></div>
+      <h3><a href="/watch?v=yt00000003"><yt-formatted-string>AI generated lofi beats to relax 🎧</yt-formatted-string></a></h3>
+      <a class="ch" href="/@chillbeats">Chill Beats</a><span class="meta">2 mln wyświetleń · 3 mies. temu</span>
+    </ytd-rich-item-renderer>
+
+    <ytd-rich-item-renderer data-test-id="y4-przyznanie" data-test-expect="hidden">
+      <div class="media" style="--a:#22d3ee;--b:#7c3aed"></div>
+      <h3><a href="/watch?v=yt00000004"><yt-formatted-string>Made with AI: cyberpunk city 4K</yt-formatted-string></a></h3>
+      <a class="ch" href="/@neonworlds">Neon Worlds</a><span class="meta">9 tys. wyświetleń · 5 dni temu</span>
+    </ytd-rich-item-renderer>
+
+    <ytd-rich-item-renderer data-test-id="y5-hashtag" data-test-expect="hidden">
+      <div class="media" style="--a:#fde68a;--b:#f43f5e"></div>
+      <h3><a href="/watch?v=yt00000005"><yt-formatted-string>Beautiful princess #aiart #midjourney</yt-formatted-string></a></h3>
+      <a class="ch" href="/@dreamgirls">Dream Girls</a><span class="meta">31 tys. wyświetleń · 1 dzień temu</span>
+    </ytd-rich-item-renderer>
+
+    <ytd-rich-item-renderer data-test-id="y6-przyznanie-w-poradniku" data-test-expect="weak">
+      <div class="media" style="--a:#0f766e;--b:#84cc16"></div>
+      <h3><a href="/watch?v=yt00000006"><yt-formatted-string>How to tell if a photo was made with AI</yt-formatted-string></a></h3>
+      <a class="ch" href="/@factcheck">Fact Check</a><span class="meta">300 tys. wyświetleń · 2 mies. temu</span>
+    </ytd-rich-item-renderer>
+
+    <ytd-rich-item-renderer data-test-id="y7-przyznanie-pl" data-test-expect="hidden">
+      <div class="media" style="--a:#16a34a;--b:#facc15"></div>
+      <h3><a href="/watch?v=yt00000007"><yt-formatted-string>Wygenerowane przez AI – piękne widoki Polski</yt-formatted-string></a></h3>
+      <a class="ch" href="/@widokipl">Widoki PL</a><span class="meta">5 tys. wyświetleń · 4 dni temu</span>
+    </ytd-rich-item-renderer>
+
+    <ytd-rich-item-renderer data-test-id="y8-pytanie-pl" data-test-expect="visible">
+      <div class="media" style="--a:#78350f;--b:#f59e0b"></div>
+      <h3><a href="/watch?v=yt00000008"><yt-formatted-string>Czy grafika AI to sztuka?</yt-formatted-string></a></h3>
+      <a class="ch" href="/@kulturapl">Kultura PL</a><span class="meta">14 tys. wyświetleń · 6 dni temu</span>
+    </ytd-rich-item-renderer>
+
+    <ytd-rich-item-renderer data-test-id="y9-czysty" data-test-expect="visible">
+      <div class="media" style="--a:#fca5a5;--b:#fef3c7"></div>
+      <h3><a href="/watch?v=yt00000009"><yt-formatted-string>Kot gra na pianinie 😂</yt-formatted-string></a></h3>
+      <a class="ch" href="/@kotypl">Koty PL</a><span class="meta">800 tys. wyświetleń · 1 rok temu</span>
+    </ytd-rich-item-renderer>
+
+    <ytd-rich-item-renderer data-test-id="y10-slabe-potem-hashtag" data-test-expect="hidden">
+      <div class="media" style="--a:#6366f1;--b:#ec4899"></div>
+      <h3><a href="/watch?v=yt00000010"><yt-formatted-string>Midjourney showcase vol. 3</yt-formatted-string></a></h3>
+      <a class="ch" href="/@aicompilations">AI Compilations</a><span class="meta" id="y10meta">60 tys. wyświetleń · 3 dni temu</span>
+    </ytd-rich-item-renderer>
+
+    <ytd-rich-item-renderer data-test-id="y14-narzedzie-bez-dyskusji" data-test-expect="weak">
+      <div class="media" style="--a:#4c1d95;--b:#f0abfc"></div>
+      <h3><a href="/watch?v=yt00000014"><yt-formatted-string>Midjourney v7 cinematic portraits</yt-formatted-string></a></h3>
+      <a class="ch" href="/@promptstudio">Prompt Studio</a><span class="meta">22 tys. wyświetleń · 1 tydz. temu</span>
+    </ytd-rich-item-renderer>
+
+    <ytd-rich-item-renderer data-test-id="y11-kradziez" data-test-expect="visible">
+      <div class="media" style="--a:#991b1b;--b:#fda4af"></div>
+      <h3><a href="/watch?v=yt00000011"><yt-formatted-string>AI art is theft. Here's why</yt-formatted-string></a></h3>
+      <a class="ch" href="/@artistvoice">Artist Voice</a><span class="meta">210 tys. wyświetleń · 2 tyg. temu</span>
+    </ytd-rich-item-renderer>
+  </div>
+
+  <!-- Wyniki wyszukiwania (ytd-video-renderer) – struktura z prawdziwego YouTube (13.11.2026). -->
+  <div class="grid" id="search">
+    <!-- YouTube pogrubia szukaną frazę – pogrubiony kawałek nie jest etykietą platformy. -->
+    <ytd-video-renderer data-test-id="y12-pogrubiona-fraza" data-test-expect="visible">
+      <div class="media" style="--a:#334155;--b:#38bdf8"></div>
+      <h3><a href="/watch?v=yt00000012"><yt-formatted-string id="video-title">Creating 3D Character in 1 Min vs 1 H vs 10 H</yt-formatted-string></a></h3>
+      <div class="metadata-snippet-container-one-line"><yt-formatted-string class="metadata-snippet-text"><span class="style-scope">Learn how to spot </span><span class="bold style-scope">AI generated</span><span class="style-scope"> characters in this tutorial.</span></yt-formatted-string></div>
+    </ytd-video-renderer>
+
+    <!-- Streszczenie filmu robione przez YouTube – to nie treść AI. -->
+    <ytd-video-renderer data-test-id="y13-podsumowanie-youtube" data-test-expect="visible">
+      <div class="media" style="--a:#0f172a;--b:#22c55e"></div>
+      <h3><a href="/watch?v=yt00000013"><yt-formatted-string id="video-title">Sztuczna inteligencja wreszcie tworzy nowe miejsca pracy</yt-formatted-string></a></h3>
+      <ytd-expandable-metadata-renderer><div id="header"><yt-formatted-string>Podsumowanie filmu wygenerowane przez AI</yt-formatted-string>
+        <a href="/watch?v=yt00000013&amp;t=1"><yt-formatted-string>AI może popełniać błędy, dlatego sprawdzaj odpowiedzi.</yt-formatted-string></a></div></ytd-expandable-metadata-renderer>
+    </ytd-video-renderer>
+  </div>
+
+  <script src="../extension/shared/bot-score.js"></script>
+  <script src="../extension/shared/defaults.js"></script>
+  <script src="../extension/shared/lists.js"></script>
+  <script src="../extension/content/content.js"></script>
+  <script>
+    // Opis z hashtagiem doczytany później – słabe oznaczenie (rozmycie) ma zmienić się w mocne.
+    setTimeout(() => {
+      const s = document.createElement('span');
+      s.className = 'meta';
+      s.textContent = 'Najlepsze obrazy tygodnia #aiart';
+      document.getElementById('y10meta').after(s);
+    }, 1000);
+  </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# Bez AI – filtr treści AI i komentarzy botów (prototyp 0.5)
+# Bez AI – filtr treści AI i komentarzy botów (prototyp 0.6)
 
 Rozszerzenie do Chrome/Edge, które automatycznie **ukrywa** albo **rozmywa** posty wygenerowane przez AI na:
 Instagramie, Facebooku, Threads, X (Twitterze), YouTube i Reddicie (w przeglądarce na komputerze).
@@ -47,6 +47,26 @@ Kliknij ikonę wtyczki:
 
 Celowo **nie** ma na liście samego `#ai` – oznaczałby też posty *o* AI (newsy, artykuły).
 Tekst wpisywany przez Ciebie (np. komentarz w trakcie pisania) jest pomijany.
+
+### Treści *z* AI czy *o* AI? (od 0.6)
+
+Fraza nie wystarcza – liczy się zdanie, w którym stoi:
+
+| Tekst | Wynik |
+|---|---|
+| „Made with AI: cyberpunk city 4K”, „Wygenerowane przez AI – widoki Polski” | ukryte (przyznanie się twórcy) |
+| „AI Generated Viking Music”, „World's First Fully AI Generated Feature Film” | ukryte |
+| „Is AI-Generated Art Original?”, „Czy grafika AI to sztuka?” | **nietknięte** (pytanie) |
+| „Court releases DUI suspect after AI-generated police report”, „Midjourney V7 review” | **nietknięte** (news, recenzja, poradnik, dyskusja) |
+| „How to tell if a photo was made with AI” | rozmyte (przyznanie w pytaniu – nie wiadomo) |
+| YouTube/X/Reddit: „AI art” i nazwy narzędzi („Midjourney v7 portraits”) w treści | rozmyte |
+| X: konto „Miku｜AI Art” – nazwa konta to deklaracja | ukryte |
+
+„Ten obraz został wygenerowany przez AI, co myślicie?” nadal jest ukrywany – pytanie do fanów to osobna część zdania.
+Przełącznik w okienku: **„Rozmywaj treści tylko o AI”** – wyłączony = takie treści zostają w ogóle nietknięte.
+
+Wtyczka pomija też elementy samej platformy: „Podsumowanie filmu wygenerowane przez AI” na YouTube
+to streszczenie robione przez YouTube, a pogrubiona szukana fraza w opisie nie jest etykietą.
 
 Wtyczka **nie wysyła żadnych danych** – działa w całości w Twojej przeglądarce, nie ma serwera ani API.
 Pobiera tylko subskrybowane listy kont (zwykłe pliki tekstowe, bez ciasteczek i bez informacji o Tobie).
@@ -126,13 +146,18 @@ instagram xjxjxjxjxj9
 Platformy: `instagram` (`ig`), `facebook` (`fb`), `threads`, `x` (`twitter`), `youtube` (`yt`), `reddit`;
 bez platformy = wszystkie. `!` albo `#` zaczyna komentarz.
 
-## Sprawdzone na prawdziwych stronach (12.11.2026)
+## Sprawdzone na prawdziwych stronach (12–13.11.2026)
 
+- **YouTube, wyszukiwanie „ai generated” (34 filmy):** wersja 0.5 zakrywała 26, w tym
+  newsy, quizy („Can you spot AI-generated political ads?”) i zwykłe filmy, przy których YouTube dokleił
+  „Podsumowanie filmu wygenerowane przez AI” albo pogrubił szukaną frazę w opisie. Wersja 0.6 (liczone po tytułach) ukrywa 19 –
+  filmy AI – a pytania, newsy i streszczenia YouTube zostawia.
+- **X, wyszukiwanie „ai art”:** większość trafień to konta z „AI Art” w nazwie (np. „…｜AI Art”) – ich wpisy
+  są ukrywane, nawet „Thank you”. Same opinie o AI („AI art is never more perfect”) – od 0.6 tylko rozmyte.
 - **Threads:** tekst posta jest na stronie ~4 s wcześniej niż atrybut `data-pressable-container`,
   po którym wtyczka rozpoznaje post – posty z #aiart nie były ukrywane. Od 0.5.1 sygnały bez posta
   czekają w „poczekalni” (do 30 s), a wtyczka śledzi doklejanie atrybutów posta.
-- **X:** 20/20 tweetów z #aiart ukrytych. **YouTube:** strona główna, wyniki, shorts i komentarze działają;
-  uwaga – frazy typu „ai-generated” ukrywają też filmy *o* AI.
+- **X:** 20/20 tweetów z #aiart ukrytych. **YouTube:** strona główna, wyniki, shorts i komentarze działają.
 - **Reddit:** jeszcze nie sprawdzony na żywo.
 
 - **Wtyczka zainstalowana w Chrome, feed Instagrama:** ukryła 2 z 17 postów – oba z prawdziwą etykietą
@@ -174,14 +199,13 @@ bez platformy = wszystkie. `!` albo `#` zaczyna komentarz.
 - YouTube: ukrywa miniatury na listach (po tytule, hashtagu, kanale), ale nie samą stronę oglądania.
 - Threads, X, YouTube i Reddit są **eksperymentalne** – Threads, X i YouTube sprawdzone na żywo tylko
   częściowo, Reddit wcale. Na X i Threads nie ma jeszcze oceny botów w odpowiedziach.
-- Frazy typu „ai-generated” ukrywają też treści *o* AI (np. film „Is AI-Generated Art Original?”).
 - Meta i inne serwisy często zmieniają kod stron. Jeśli coś przestanie działać, trzeba poprawić
   selektory w `extension/shared/defaults.js` (sekcja `SITES`).
 - „Ukryto łącznie” liczy też ponownie te same posty po odświeżeniu strony.
 
 ## Testy
 
-Wszystkie makiety naraz (85 przypadków na 9 makietach): uruchom serwer jak niżej i otwórz
+Wszystkie makiety naraz (107 przypadków na 11 makietach): uruchom serwer jak niżej i otwórz
 http://localhost:8791/test/index.html → „Uruchom wszystkie”.
 
 Makiety z automatycznym sprawdzaniem (pasek u góry pokazuje „OK x/y”). Serwer uruchom w głównym folderze repozytorium:
@@ -217,6 +241,12 @@ node test/bot-score.test.js
 node test/lists.test.js
 ```
 
+Testy rozróżniania „z AI” i „o AI” (38 przypadków, w tym prawdziwe tytuły z YouTube i wpisy z X):
+
+```bash
+node test/keywords.test.js
+```
+
 Podgląd interfejsu bez instalowania wtyczki:
 - http://localhost:8791/test/popup.html – okienko wtyczki
 - http://localhost:8791/test/popup.html?page=options – strona list
@@ -243,8 +273,6 @@ test/                  – makiety stron i atrapa API chrome.* do testów
 ## Pomysły na dalej
 
 - Przyciski przy poście i komentarzu: „zablokuj konto”, „to nie AI”, „to nie bot”.
-- Rozróżnienie „przyznania się” do AI („made with AI”, #aiart) od tematu („ai generated”) – mniej
-  fałszywych alarmów na treściach *o* AI.
 - Ocena botów w odpowiedziach na X i Threads.
 - Wersja dla Firefoksa (również na Androida).
 - Opcjonalny lokalny detektor obrazów jako tryb „tylko rozmyj podejrzane”.

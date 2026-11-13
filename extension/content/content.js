@@ -32,6 +32,9 @@
     'a[href*="story_fbid"]', 'a[href*="/videos/"]', 'a[href*="/post/"]'
   ].join(',');
   const BIG_MEDIA = 200; // px – minimalny rozmiar "dużego" zdjęcia/wideo
+  // Post oznaczony mocnym sygnałem – w środku nie trzeba już szukać. Słabo oznaczony (tylko rozmyty)
+  // skanujemy dalej, bo mocniejszy sygnał może pojawić się później (np. hashtag w doczytanym opisie).
+  const STRONG_FLAG = '[data-aib-flagged]:not([data-aib-weak])';
 
   let settings = null;
   let active = false;
@@ -96,7 +99,7 @@
     const kws = Array.from(new Set(settings.keywords.map(AIB.normText).filter(Boolean)))
       .sort((a, b) => b.length - a.length);
     keywordRe = kws.length
-      ? new RegExp('(?<![\\p{L}\\p{N}])(?:' + kws.map(escapeRe).join('|') + ')(?![\\p{L}\\p{N}])', 'u')
+      ? new RegExp('(?<![\\p{L}\\p{N}])(?:' + kws.map(escapeRe).join('|') + ')(?![\\p{L}\\p{N}])', 'gu')
       : null;
     botOpts = {
       phrases: settings.botPhrases,
@@ -116,7 +119,7 @@
     return false;
   }
 
-  function matchText(raw, allowLabel) {
+  function matchText(raw, allowLabel, el) {
     if (allowLabel && settings.detectLabels && raw.length <= 80) {
       if (isLabel(AIB.normLabel(raw))) return { type: 'label', text: raw.trim() };
     }
@@ -128,8 +131,16 @@
       }
     }
     if (settings.detectKeywords && keywordRe) {
-      const m = keywordRe.exec(t);
-      if (m) return { type: 'keyword', text: m[0] };
+      // Fraza w pytaniu, recenzji albo newsie to raczej treść *o* AI – patrz AIB.keywordStrength.
+      // Fraza w nazwie konta ("Miku AI Art") to deklaracja konta – liczy się w pełni.
+      const soft = !!site.topicSoft && !(site.authorSel && el && el.closest && el.closest(site.authorSel));
+      let weak = null;
+      for (const m of t.matchAll(keywordRe)) {
+        const s = AIB.keywordStrength(t, m.index, m[0], soft);
+        if (s === 'strong') return { type: 'keyword', text: m[0] };
+        if (s === 'weak' && !weak && settings.blurTopics) weak = { type: 'keyword', text: m[0], weak: true };
+      }
+      return weak;
     }
     return null;
   }
@@ -138,12 +149,29 @@
     return !!(el && el.closest && el.closest(EDITABLE_SEL));
   }
 
+  // Wyróżnienie fragmentu w środku zdania (YouTube pogrubia szukaną frazę: "… is <b>AI generated</b> …").
+  const HIGHLIGHT_TAGS = new Set(['B', 'STRONG', 'MARK', 'EM']);
+
+  function isIgnored(el) {
+    return !!(site.ignore && el.closest(site.ignore));
+  }
+
   function checkTextNode(node) {
-    const raw = node.nodeValue;
+    let raw = node.nodeValue;
     if (!raw || raw.length < 2) return;
     const parent = node.parentElement;
-    if (!parent || SKIP_TAGS.has(parent.tagName)) return;
-    const reason = matchText(raw, true);
+    if (!parent || SKIP_TAGS.has(parent.tagName) || isIgnored(parent)) return;
+    let allowLabel = true;
+    if ((HIGHLIGHT_TAGS.has(parent.tagName) || parent.classList.contains('bold')) && parent.parentElement) {
+      // Sprawdzone na żywo (13.11.2026): wyszukiwanie "ai generated" pogrubiało tę frazę w opisach
+      // i pogrubiony kawałek wyglądał jak etykieta platformy. Oceniamy więc całe zdanie.
+      const full = parent.parentElement.textContent || '';
+      if (full.trim().length > raw.trim().length + 3) {
+        raw = full;
+        allowLabel = false;
+      }
+    }
+    const reason = matchText(raw, allowLabel, parent);
     if (reason && !isEditable(parent)) flag(parent, reason);
   }
 
@@ -154,7 +182,7 @@
 
   function checkLink(a) {
     const href = a.getAttribute('href');
-    if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+    if (!href || href.startsWith('#') || href.startsWith('javascript:') || isIgnored(a)) return;
     let url;
     try {
       url = new URL(href, location.href);
@@ -206,7 +234,7 @@
       for (const el of root.querySelectorAll('[aria-label]')) els.push(el);
       for (const el of els) {
         const v = el.getAttribute('aria-label');
-        if (v && v.length <= 80 && isLabel(AIB.normLabel(v)) && !isEditable(el)) {
+        if (v && v.length <= 80 && isLabel(AIB.normLabel(v)) && !isEditable(el) && !isIgnored(el)) {
           flag(el, { type: 'label', text: v.trim() });
         }
       }
@@ -217,8 +245,8 @@
       for (const img of root.querySelectorAll('img[alt]')) imgs.push(img);
       for (const img of imgs) {
         const alt = img.getAttribute('alt');
-        if (alt && alt.length > 3) {
-          const reason = matchText(alt, false);
+        if (alt && alt.length > 3 && !isIgnored(img)) {
+          const reason = matchText(alt, false, img);
           if (reason) flag(img, reason);
         }
       }
@@ -702,7 +730,7 @@
     if (!m) return;
     const flagged = m.closest('[data-aib-flagged]');
     if (r) {
-      if (!flagged) flagCurrentMedia(r, code);
+      if (!flagged || (flagged.hasAttribute('data-aib-weak') && !r.weak)) flagCurrentMedia(r, code);
     } else if (flagged && flagged.hasAttribute('data-aib-code') && flagged.getAttribute('data-aib-code') !== code) {
       // Reels potrafią użyć tego samego bloku dla następnego filmu – zdejmujemy stare oznaczenie.
       unflag(flagged);
@@ -826,7 +854,7 @@
     const now = Date.now();
     const keep = [];
     for (const o of orphans) {
-      if (!o.el.isConnected || now - o.t > ORPHAN_TTL || o.el.closest('[data-aib-flagged]')) continue;
+      if (!o.el.isConnected || now - o.t > ORPHAN_TTL || o.el.closest(STRONG_FLAG)) continue;
       const [c, soft] = findContainer(o.el);
       if (c) flagContainer(c, o.reason, o.code, soft);
       else keep.push(o);
@@ -835,11 +863,26 @@
     if (orphans.length) scheduleOrphans(1000);
   }
 
+  function labelFor(reason) {
+    return (reason.weak ? 'Możliwa treść AI (' : 'Treść AI ukryta (') + describe(reason) + ') · kliknij, aby pokazać';
+  }
+
   function flagContainer(c, reason, code, soft) {
-    if (c.hasAttribute('data-aib-flagged')) return;
+    if (c.hasAttribute('data-aib-flagged')) {
+      // Słaby sygnał (tylko rozmycie) ustępuje mocnemu, np. tytuł "AI art…" + #aiart niżej w opisie.
+      if (c.hasAttribute('data-aib-weak') && !reason.weak) {
+        c.removeAttribute('data-aib-weak');
+        c.setAttribute('data-aib-flagged', reason.type);
+        c.setAttribute('data-aib-label', labelFor(reason));
+        if (!soft) c.removeAttribute('data-aib-soft');
+        if (code) c.setAttribute('data-aib-code', code);
+      }
+      return;
+    }
     c.setAttribute('data-aib-flagged', reason.type);
-    c.setAttribute('data-aib-label', 'Treść AI ukryta (' + describe(reason) + ') · kliknij, aby pokazać');
-    if (soft) c.setAttribute('data-aib-soft', '');
+    c.setAttribute('data-aib-label', labelFor(reason));
+    if (soft || reason.weak) c.setAttribute('data-aib-soft', '');
+    if (reason.weak) c.setAttribute('data-aib-weak', '');
     if (code) c.setAttribute('data-aib-code', code);
     try {
       if (getComputedStyle(c).position === 'static') c.setAttribute('data-aib-static', '');
@@ -859,7 +902,8 @@
     }
   }
 
-  const FLAG_ATTRS = ['data-aib-flagged', 'data-aib-label', 'data-aib-static', 'data-aib-revealed', 'data-aib-soft', 'data-aib-code'];
+  const FLAG_ATTRS = ['data-aib-flagged', 'data-aib-label', 'data-aib-static', 'data-aib-revealed', 'data-aib-soft',
+    'data-aib-code', 'data-aib-weak'];
 
   function unflag(c) {
     for (const a of FLAG_ATTRS) c.removeAttribute(a);
@@ -889,7 +933,7 @@
       if (!n.isConnected) continue;
       if (n.nodeType === Node.TEXT_NODE) {
         const p = n.parentElement;
-        if (p && !nodes.has(p) && !p.closest('[data-aib-flagged]')) {
+        if (p && !nodes.has(p) && !p.closest(STRONG_FLAG)) {
           checkTextNode(n);
           if (settings.detectBots && BOTS) {
             const row = commentRowOf(p);
@@ -905,7 +949,7 @@
         if (nodes.has(anc)) { covered = true; break; }
         anc = anc.parentNode;
       }
-      if (covered || n.closest('[data-aib-flagged]')) continue;
+      if (covered || n.closest(STRONG_FLAG)) continue;
       scanElement(n);
     }
   }

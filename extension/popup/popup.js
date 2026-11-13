@@ -44,10 +44,11 @@ function render() {
   document.body.classList.toggle('disabled', !settings.enabled);
   for (const r of document.querySelectorAll('input[name="mode"]')) r.checked = r.value === settings.mode;
   $('modeHint').textContent = MODE_HINTS[settings.mode] || '';
-  for (const k of ['detectLabels', 'detectHashtags', 'detectKeywords', 'detectAccounts', 'detectBots', 'botMemory']) $(k).checked = settings[k];
+  for (const k of ['detectLabels', 'detectHashtags', 'detectKeywords', 'blurTopics', 'detectAccounts', 'detectBots', 'botMemory']) $(k).checked = settings[k];
   for (const r of document.querySelectorAll('input[name="botSensitivity"]')) r.checked = r.value === settings.botSensitivity;
   for (const r of document.querySelectorAll('input[name="botMode"]')) r.checked = r.value === settings.botMode;
   $('botOptions').classList.toggle('off', !settings.detectBots);
+  $('blurTopics').closest('.row').classList.toggle('off', !settings.detectKeywords);
   $('botHint').textContent = BOT_HINTS[settings.botSensitivity] || '';
   $('nHashtags').textContent = settings.hashtags.length + ' na liście';
   $('nKeywords').textContent = settings.keywords.length + ' na liście';
@@ -133,7 +134,7 @@ function bind() {
   for (const r of document.querySelectorAll('input[name="mode"]')) {
     r.addEventListener('change', () => r.checked && save({ mode: r.value }));
   }
-  for (const k of ['detectLabels', 'detectHashtags', 'detectKeywords', 'detectAccounts', 'detectBots', 'botMemory']) {
+  for (const k of ['detectLabels', 'detectHashtags', 'detectKeywords', 'blurTopics', 'detectAccounts', 'detectBots', 'botMemory']) {
     $(k).addEventListener('change', (e) => save({ [k]: e.target.checked }));
   }
   for (const name of ['botSensitivity', 'botMode']) {

@@ -21,13 +21,15 @@
         });
         continue;
       }
+      // hidden = mocne oznaczenie, weak = tylko rozmycie (treść być może *o* AI), visible = nic.
       const flagged = el.hasAttribute('data-aib-flagged');
+      const weak = flagged && el.hasAttribute('data-aib-weak');
       const insideFlagged = !!(el.parentElement && el.parentElement.closest('[data-aib-flagged]'));
-      const ok = want === 'hidden' ? flagged : !flagged && !insideFlagged;
+      const ok = want === 'hidden' ? flagged && !weak : want === 'weak' ? weak : !flagged && !insideFlagged;
       rows.push({
         id: el.getAttribute('data-test-id'),
         want,
-        got: flagged ? 'hidden(' + el.getAttribute('data-aib-flagged') + ')' : insideFlagged ? 'inside-hidden' : 'visible',
+        got: flagged ? (weak ? 'weak' : 'hidden') + '(' + el.getAttribute('data-aib-flagged') + ')' : insideFlagged ? 'inside-hidden' : 'visible',
         ok
       });
     }

@@ -43,14 +43,25 @@
       containers: ['div[data-pressable-container="true"]'],
       dataHook: true
     },
+    // topicSoft: tytuły i wpisy często są *o* AI (newsy, recenzje, dyskusje), a nie *z* AI –
+    //   frazy tematyczne ("ai art", "midjourney") tylko rozmywają, zamiast ukrywać.
     x: {
       name: 'X (Twitter)',
       hosts: ['x.com', 'twitter.com'],
-      containers: ['article[data-testid="tweet"]', '[data-testid="cellInnerDiv"]']
+      containers: ['article[data-testid="tweet"]', '[data-testid="cellInnerDiv"]'],
+      topicSoft: true,
+      // Nazwa konta: "Miku AI Art", "AI art gallery" – konto samo mówi, że publikuje AI (sprawdzone
+      // na żywo 13.11.2026), więc fraza w nazwie liczy się w pełni, a nie tylko jako temat.
+      authorSel: '[data-testid="User-Name"]'
     },
     youtube: {
       name: 'YouTube',
       hosts: ['youtube.com'],
+      topicSoft: true,
+      // Elementy samej platformy, których nie oceniamy: "Podsumowanie filmu wygenerowane przez AI"
+      // to streszczenie robione przez YouTube, a nie treść AI (sprawdzone na żywo 13.11.2026).
+      ignore: 'ytd-expandable-metadata-renderer',
+      authorSel: 'ytd-channel-name, #channel-name',
       containers: [
         'ytd-rich-item-renderer',
         'ytd-video-renderer',
@@ -74,7 +85,8 @@
       name: 'Reddit',
       hosts: ['reddit.com'],
       containers: ['shreddit-comment', 'article', 'shreddit-post', 'div.thing'],
-      commentSelector: 'shreddit-comment'
+      commentSelector: 'shreddit-comment',
+      topicSoft: true
     }
   };
 
@@ -120,7 +132,10 @@
     'stablediffusionart', 'sdxl', 'dalle', 'dalle2', 'dalle3', 'chatgptart', 'chatgptimage',
     'gptimage', 'soraai', 'sora2', 'openaisora', 'runwayml', 'runwayai', 'klingai', 'veo3',
     'googleveo', 'leonardoai', 'fluxai', 'ideogram', 'adobefirefly', 'nanobanana', 'grokimagine',
-    'sztukaai', 'grafikaai', 'obrazai', 'wygenerowaneprzezai'
+    'sztukaai', 'grafikaai', 'obrazai', 'wygenerowaneprzezai',
+    // Z prawdziwych tytułów na YouTube (13.11.2026):
+    'aishorts', 'aivideos', 'aimusic', 'aimusicvideo', 'aisong', 'aicover', 'aigeneratedmusic',
+    'sunoai', 'higgsfieldai'
   ];
 
   // Frazy szukane w tekście posta (całe słowa, bez wielkości liter).
@@ -134,8 +149,73 @@
     'stworzone przez sztuczną inteligencję', 'stworzone przez ai',
     'utworzone przez si', 'wygenerowane przez si', 'stworzone przez si', 'utworzone przy użyciu si',
     'wygenerowane przy użyciu si', 'utworzone przez ai', 'utworzone przy użyciu ai',
-    'stworzone z ai', 'stworzone przy użyciu ai', 'zrobione przez ai', 'grafika ai', 'obraz ai'
+    'stworzone z ai', 'stworzone przy użyciu ai', 'zrobione przez ai', 'grafika ai', 'obraz ai',
+    'ai music video', 'made with midjourney', 'made with suno', 'made with runway'
   ];
+
+  // ---------- "z AI" czy "o AI"? ----------
+  // Frazy tematyczne: pasują i do treści z AI ("AI generated viking music"), i do treści o AI
+  // ("Is AI-Generated Art Original?", "Midjourney V7 review"). W pytaniu, newsie czy recenzji są
+  // pomijane. Pozostałe frazy to przyznanie się twórcy ("made with AI", "wygenerowane przez AI") –
+  // w pytaniu tylko rozmywają.
+  // Na prawdziwym YouTube (13.11.2026) tytuł z "AI generated" bez pytania/dyskusji to w 13 na 14
+  // przypadków film AI – dlatego takie tytuły nadal są ukrywane. Za to "AI art" i nazwy narzędzi
+  // w treści wpisów na X to często opinie ("AI art is never more perfect") – tam tylko rozmywamy.
+  const SOFT_TOPIC_KEYWORDS = new Set([
+    'ai art', 'ai artwork', 'grafika ai', 'obraz ai',
+    'midjourney', 'stable diffusion', 'dall-e', 'dall·e', 'nijijourney'
+  ]);
+  const TOPIC_KEYWORDS = new Set(['ai-generated', 'ai generated', 'ai music video', ...SOFT_TOPIC_KEYWORDS]);
+  const W = (words) => new RegExp('(?<![\\p{L}\\p{N}])(?:' + words.join('|') + ')(?![\\p{L}\\p{N}])', 'u');
+  // Zdanie zaczyna się od słowa pytającego.
+  const QUESTION_START_RE = new RegExp('^(?:is|are|was|were|can|could|should|would|will|do|does|did|why|how|what|which|who|when|where|has|have|' +
+    'czy|jak|dlaczego|czemu|co|kto|kiedy|gdzie|ile|który|która|które)(?![\\p{L}\\p{N}])', 'u');
+  // Słowa typowe dla newsów, recenzji, poradników i dyskusji o AI.
+  const DISCUSSION_RE = W([
+    'vs', 'versus', 'debate', 'explained?', 'explaining', 'explainer', 'reviews?', 'reviewed', 'tutorials?', 'guide',
+    'how to', 'news', 'bans?', 'banned', 'banning', 'lawsuits?', 'laws?', 'copyright', 'detect', 'detecting',
+    'detectors?', 'detection', 'spot', 'spotting', 'tell if', 'fakes?', 'scams?', 'problems?', 'dangers?',
+    'dangerous', 'ethics', 'ethical', 'theft', 'steal', 'stealing', 'stolen', 'artists', 'controversy',
+    'controversial', 'regulations?', 'study', 'research', 'report', 'podcast', 'interview', 'opinion',
+    'reaction', 'reacts?', 'reacting', 'documentary', 'threat', 'truth', 'myths?', 'lies', 'exposed',
+    'warning', 'against', 'hate', 'ruining', 'ruined', 'destroying', 'replac(?:e|es|ed|ing)', 'jobs',
+    'future', 'course', 'lesson', 'learn', 'tips', 'tricks', 'comparison', 'compared', 'test', 'tested', 'testing',
+    'tools', 'apps?', 'software', 'plugins?', 'generator\\p{L}*', 'narzędzi\\p{L}*', 'aplikacj\\p{L}*',
+    'feels? like', 'sounds? like', 'i think', 'imo', 'judg\\p{L}*', 'is not art', 'isn.t art', 'nie jest sztuką',
+    'czy', 'jak rozpoznać', 'rozpozna\\p{L}*', 'poradnik\\p{L}*', 'recenzj\\p{L}*', 'testuj\\p{L}*', 'porównanie',
+    'wywiad\\p{L}*', 'afer\\p{L}*', 'zakaz\\p{L}*', 'praw[oa]', 'prawa autorskie', 'artyst\\p{L}*', 'kradzież\\p{L}*',
+    'kradnie', 'oszust\\p{L}*', 'wiadomości', 'debat\\p{L}*', 'zagrożeni\\p{L}*', 'problem\\p{L}*', 'fałszyw\\p{L}*',
+    'wykry\\p{L}*', 'przyszłoś\\p{L}*', 'kontrowers\\p{L}*', 'etyk\\p{L}*', 'przeciw', 'przeciwko', 'kurs\\p{L}*',
+    'lekcj\\p{L}*', 'porady', 'wyjaśnia\\p{L}*', 'o co chodzi', 'prawda', 'mit', 'mity'
+  ]);
+
+  // Fragment tekstu wokół trafienia, ograniczony podanymi znakami.
+  function around(t, index, len, stops) {
+    let s = index;
+    while (s > 0 && !stops.includes(t[s - 1])) s--;
+    let e = index + len;
+    while (e < t.length && !stops.includes(t[e])) e++;
+    return { text: t.slice(s, e).trim(), end: t[e] || '' };
+  }
+
+  /**
+   * Jak mocny jest sygnał z frazy znalezionej w tekście (t – tekst po normText).
+   * 'strong' – ukryj jak zwykle, 'weak' – tylko rozmyj, 'ignore' – to raczej treść *o* AI.
+   */
+  function keywordStrength(t, index, phrase, topicSoft) {
+    // Zdanie pytające ("Is AI-Generated Art Original?") – liczy się zdanie z frazą, nie całe opisy:
+    // "Wygenerowane przez AI, co myślicie?" to nadal przyznanie się twórcy.
+    const clause = around(t, index, phrase.length, '.!?\n,;:');
+    const question = clause.end === '?' || QUESTION_START_RE.test(clause.text);
+    const sentence = around(t, index, phrase.length, '.!?\n');
+    const discussion = question || DISCUSSION_RE.test(sentence.text.replace(phrase, ' '));
+    if (TOPIC_KEYWORDS.has(phrase)) {
+      if (discussion) return 'ignore';
+      // Na YouTube/X/Reddicie "AI art" i nazwy narzędzi to często opinie, poradniki i nowości – tylko rozmywamy.
+      return SOFT_TOPIC_KEYWORDS.has(phrase) && topicSoft ? 'weak' : 'strong';
+    }
+    return discussion ? 'weak' : 'strong';
+  }
 
   const DEFAULTS = {
     enabled: true,
@@ -144,6 +224,7 @@
     detectHashtags: true,
     detectKeywords: true,
     detectAccounts: true,
+    blurTopics: true, // treści, które tylko *mówią* o AI (tytuły, pytania): rozmyj zamiast nic nie robić
     sites: Object.fromEntries(Object.keys(SITES).map((k) => [k, true])),
     labels: DEFAULT_LABELS,
     hashtags: DEFAULT_HASHTAGS,
@@ -263,6 +344,8 @@
     withDefaults,
     loadSettings,
     loadSharedLists,
+    keywordStrength,
+    TOPIC_KEYWORDS,
     PROJECT_LIST_URL
   };
 })();
