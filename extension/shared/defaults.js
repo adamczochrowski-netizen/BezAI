@@ -332,6 +332,55 @@
     });
   }
 
+  // ---------- szybkie oznaczanie kont (menu pod prawym przyciskiem, przyciski na stronie) ----------
+
+  // Pierwsze części adresów, które nie są nazwą konta (post, wyszukiwanie, grupy…).
+  const NOT_ACCOUNT = new Set([
+    'p', 'reel', 'reels', 'tv', 'explore', 'stories', 'direct', 'accounts', 'about', 'legal', 'privacy', 'terms',
+    'developer', 'web', 'emails', 'challenge', 'home', 'search', 'notifications', 'watch', 'shorts', 'results',
+    'playlist', 'feed', 'hashtag', 'i', 'settings', 'messages', 'groups', 'photo', 'photos', 'permalink.php',
+    'story.php', 'events', 'marketplace', 'gaming', 'video', 'videos', 'share', 'login', 'signup', 'compose',
+    'intent', 'post', 'posts', 'help', 'policies', 'bookmarks', 'friends', 'pages', 'live', 'premium'
+  ]);
+
+  // Link do profilu → {site, name} albo null, gdy to nie jest link do konta na obsługiwanej stronie.
+  function accountFromLink(href) {
+    let url;
+    try { url = new URL(href); } catch (e) { return null; }
+    const site = siteKeyForHost(url.hostname);
+    if (!site) return null;
+    const name = accountCandidatesFromUrl(url)[0];
+    if (!name || NOT_ACCOUNT.has(name)) return null;
+    return { site, name };
+  }
+
+  function accountLabel(name) {
+    const n = normAccount(name);
+    return n.includes('/') ? n : '@' + n;
+  }
+
+  /**
+   * Ustawia status konta na listach użytkownika (jeden zapis = jedno przeliczenie strony):
+   * 'ai' – ukrywaj posty (Konta AI), 'bot' – zwijaj komentarze (Konta botów),
+   * 'trust' – Zaufane konta (wygrywają ze wszystkimi listami), 'none' – usuń z tych trzech list.
+   */
+  async function setAccountStatus(name, status) {
+    const n = normAccount(name);
+    if (!n) return false;
+    const keys = ['accounts', 'botAccounts', 'botWhitelist'];
+    const st = await chrome.storage.sync.get(keys);
+    const lists = {};
+    for (const k of keys) lists[k] = Array.isArray(st[k]) ? st[k].slice() : DEFAULTS[k].slice();
+    const drop = (k) => { lists[k] = lists[k].filter((x) => normAccount(x) !== n); };
+    if (status === 'ai') { drop('botWhitelist'); drop('accounts'); lists.accounts.push(accountLabel(n)); }
+    else if (status === 'bot') { drop('botWhitelist'); drop('botAccounts'); lists.botAccounts.push(accountLabel(n)); }
+    else if (status === 'trust') { drop('accounts'); drop('botAccounts'); drop('botWhitelist'); lists.botWhitelist.push(accountLabel(n)); }
+    else if (status === 'none') { for (const k of keys) drop(k); }
+    else return false;
+    await chrome.storage.sync.set(lists);
+    return true;
+  }
+
   globalThis.AIB = {
     SITES,
     DEFAULTS,
@@ -346,6 +395,9 @@
     loadSharedLists,
     keywordStrength,
     TOPIC_KEYWORDS,
-    PROJECT_LIST_URL
+    PROJECT_LIST_URL,
+    accountFromLink,
+    accountLabel,
+    setAccountStatus
   };
 })();

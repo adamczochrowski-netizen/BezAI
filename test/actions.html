@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Makieta – przyciski „To nie AI”, „Ufaj”, „To nie bot”</title>
+  <link rel="stylesheet" href="../extension/content/content.css">
+  <link rel="stylesheet" href="mock.css">
+  <style>
+    .post-box { display: flex; background: #fff; border: 1px solid #dbdbdb; border-radius: 6px; margin-top: 16px; }
+    .post-box .media-wrap { width: 300px; height: 420px; flex: none; }
+    .post-box .side { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .post-box .side header { padding: 12px; border-bottom: 1px solid #efefef; font-weight: 600; }
+    .clist { padding: 8px 12px; display: flex; flex-direction: column; gap: 12px; }
+    .crow { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+    .crow .av { width: 32px; height: 32px; border-radius: 50%; flex: none; }
+    .crow a, .post-box header a { color: #111; font-weight: 600; text-decoration: none; }
+  </style>
+  <script>
+    // Stały stan na start: tryb "rozmyj" (posty da się odsłonić), jedno konto AI na liście, brak "To nie AI".
+    window.__AIB_SITE__ = 'instagram';
+    localStorage.setItem('aib-test:sync', JSON.stringify({ mode: 'blur', accounts: ['ai.art.daily'] }));
+    try {
+      const local = JSON.parse(localStorage.getItem('aib-test:local') || '{}');
+      delete local.notAi;
+      localStorage.setItem('aib-test:local', JSON.stringify(local));
+    } catch (e) { localStorage.removeItem('aib-test:local'); }
+  </script>
+  <script src="chrome-shim.js"></script>
+  <script src="test-kit.js"></script>
+</head>
+<body class="ig">
+  <main role="main">
+    <div class="feed">
+      <article data-test-id="a1-to-nie-ai" data-test-expect="visible">
+        <header><a href="/akwarele.ani/" class="user">akwarele.ani</a></header>
+        <div class="media" style="--a:#38bdf8;--b:#a78bfa"></div>
+        <div class="caption">Akwarela z wakacji, wszystko ręcznie 🖌️ #aiart (żart, to nie AI!)</div>
+        <a class="time" href="/p/ACT001/">1 godz.</a>
+      </article>
+
+      <article data-test-id="a2-nietkniety" data-test-expect="hidden">
+        <header><a href="/neon.city.art/" class="user">neon.city.art</a></header>
+        <div class="media" style="--a:#f472b6;--b:#22d3ee"></div>
+        <div class="caption">Neon city vol. 9 #aiart #midjourney</div>
+        <a class="time" href="/p/ACT002/">2 godz.</a>
+      </article>
+
+      <article data-test-id="a3-ufaj-kontu" data-test-expect="visible">
+        <header><a href="/ai.art.daily/" class="user">ai.art.daily</a></header>
+        <div class="media" style="--a:#facc15;--b:#ec4899"></div>
+        <div class="caption">Dzień 215 – tym razem zdjęcie z telefonu 📷</div>
+        <a class="time" href="/p/ACT003/">3 godz.</a>
+      </article>
+
+      <div class="post-box">
+        <div class="media-wrap"><img alt="" style="width:100%;height:100%;display:block" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='1' height='1' fill='%230d9488'/%3E%3C/svg%3E"></div>
+        <div class="side">
+          <header><a href="/morze.foto/">morze.foto</a></header>
+          <div class="clist">
+            <div class="crow" data-test-id="c1-to-nie-bot" data-test-expect="nobot">
+              <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23f43f5e'/%3E%3C/svg%3E">
+              <div class="txt"><a href="/kolega.marek/">kolega.marek</a> <span>Check my bio 😂 (wrzuciłem tam nasze zdjęcie z wyjazdu)</span></div>
+            </div>
+            <div class="crow" data-test-id="c2-bot-nietkniety" data-test-expect="bot">
+              <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23cbd5e1'/%3E%3C/svg%3E">
+              <div class="txt"><a href="/promo.pages.x/">promo.pages.x</a> <span>Promote it on @viralpages 🔥</span></div>
+            </div>
+            <div class="crow" data-test-id="c3-czlowiek" data-test-expect="nobot">
+              <img class="av" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%2322c55e'/%3E%3C/svg%3E">
+              <div class="txt"><a href="/ola.k/">ola.k</a> <span>Cudne kolory! Gdzie to?</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Sprawdzenia zapisanych ustawień (test-kit: data-test-check). -->
+  <div hidden>
+    <span data-test-id="s1-zapisane-to-nie-ai" data-test-check="checkNotAi"></span>
+    <span data-test-id="s2-konto-zaufane-i-zdjete-z-listy-ai" data-test-check="checkTrusted"></span>
+    <span data-test-id="s3-komentujacy-zaufany" data-test-check="checkBotTrusted"></span>
+    <span data-test-id="s4-scenariusz-dokonczony" data-test-check="checkDone"></span>
+    <span data-test-id="s5-tryb-ukryj-pokaz-ukryte" data-test-check="checkPeek"></span>
+  </div>
+
+  <script src="../extension/shared/bot-score.js"></script>
+  <script src="../extension/shared/defaults.js"></script>
+  <script src="../extension/shared/lists.js"></script>
+  <script src="../extension/content/content.js"></script>
+  <script>
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const store = (area) => JSON.parse(localStorage.getItem('aib-test:' + area) || '{}');
+    const byId = (id) => document.querySelector('[data-test-id="' + id + '"]');
+    function toastButton(act) {
+      const h = document.querySelector('[data-aib-toast]');
+      return h && h.shadowRoot && h.shadowRoot.querySelector('[data-act="' + act + '"]');
+    }
+    async function revealAndPress(el, act) {
+      el.click(); // pierwsze kliknięcie odsłania i pokazuje pasek
+      await sleep(150);
+      const b = toastButton(act);
+      if (!b) throw new Error('brak przycisku ' + act + ' przy ' + el.getAttribute('data-test-id'));
+      b.click();
+      await sleep(500);
+    }
+
+    window.checkNotAi = () => {
+      const n = store('local').notAi || {};
+      return { ok: !!n['code:ACT001'] && !n['code:ACT002'], got: Object.keys(n).join(',') || 'pusto' };
+    };
+    window.checkTrusted = () => {
+      const s = store('sync');
+      const trusted = (s.botWhitelist || []).includes('@ai.art.daily');
+      const stillAi = (s.accounts || []).some((a) => AIB.normAccount(a) === 'ai.art.daily');
+      return { ok: trusted && !stillAi, got: 'zaufane=' + trusted + ', na liście AI=' + stillAi };
+    };
+    window.checkBotTrusted = () => {
+      const s = store('sync');
+      return { ok: (s.botWhitelist || []).includes('@kolega.marek'), got: (s.botWhitelist || []).join(',') || 'pusto' };
+    };
+    window.checkDone = () => ({ ok: window.__actionsDone === true, got: String(window.__actionsDone) });
+    window.checkPeek = () => ({ ok: window.__peekResult === 'ok', got: String(window.__peekResult) });
+
+    setTimeout(async () => {
+      try {
+        await revealAndPress(byId('a1-to-nie-ai'), 'not-ai');
+        await revealAndPress(byId('a3-ufaj-kontu'), 'trust');
+        await sleep(400); // przeliczenie strony po zmianie ustawień
+        await revealAndPress(byId('c1-to-nie-bot'), 'not-bot');
+        await sleep(400);
+        window.__actionsDone = true;
+
+        // Tryb "Ukryj": post a2 znika; "Pokaż ukryte na tej karcie" ma go rozmyć i pozwolić kliknąć.
+        await chrome.storage.sync.set({ mode: 'hide' });
+        await sleep(400);
+        const a2 = byId('a2-nietkniety');
+        const hiddenBefore = getComputedStyle(a2).display === 'none';
+        const status = await window.__aibAskContent({ type: 'aib-peek' });
+        await sleep(100);
+        const visibleAfter = getComputedStyle(a2).display !== 'none';
+        a2.click();
+        await sleep(150);
+        const toast = !!toastButton('not-ai');
+        const b = toastButton('cover');
+        if (b) b.click();
+        window.__peekResult = hiddenBefore && status && status.ok && visibleAfter && toast ? 'ok'
+          : 'ukryty=' + hiddenBefore + ', odpowiedź=' + JSON.stringify(status) + ', widoczny po=' + visibleAfter + ', pasek=' + toast;
+      } catch (e) {
+        window.__actionsDone = 'błąd: ' + e.message;
+      }
+    }, 1200);
+  </script>
+</body>
+</html>

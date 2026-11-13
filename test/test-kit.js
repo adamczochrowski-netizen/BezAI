@@ -33,6 +33,12 @@
         ok
       });
     }
+    // Dowolne sprawdzenie: data-test-check="nazwaFunkcji" → window[nazwaFunkcji]() zwraca {ok, got}.
+    for (const el of document.querySelectorAll('[data-test-check]')) {
+      let r;
+      try { r = window[el.getAttribute('data-test-check')](); } catch (e) { r = { ok: false, got: 'błąd: ' + e.message }; }
+      rows.push({ id: el.getAttribute('data-test-id'), want: 'ok', got: String(r && r.got), ok: !!(r && r.ok) });
+    }
     return { pass: rows.every((r) => r.ok), failed: rows.filter((r) => !r.ok), total: rows.length, rows };
   };
 

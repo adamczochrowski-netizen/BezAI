@@ -1,4 +1,4 @@
-# Bez AI – filtr treści AI i komentarzy botów (prototyp 0.6)
+# Bez AI – filtr treści AI i komentarzy botów (prototyp 0.7)
 
 Rozszerzenie do Chrome/Edge, które automatycznie **ukrywa** albo **rozmywa** posty wygenerowane przez AI na:
 Instagramie, Facebooku, Threads, X (Twitterze), YouTube i Reddicie (w przeglądarce na komputerze).
@@ -33,7 +33,24 @@ Kliknij ikonę wtyczki:
 - **Zablokuj konto** – wpisz `@nazwa` albo wklej link do profilu.
 - **Działaj na stronach** – wyłącz wtyczkę na wybranych serwisach.
 - Liczba na ikonie = ile postów ukryto na bieżącej karcie.
+- **Pokaż ukryte na tej karcie** (tryb „Ukryj”) – ukryte posty stają się rozmyte, żeby dało się je kliknąć
+  i poprawić pomyłkę. Po odświeżeniu karty wraca ukrywanie.
 - **Edytuj listy…** – pełna edycja hashtagów, fraz, etykiet i kont.
+
+### Poprawianie pomyłek na stronie (od 0.7)
+
+- **Po kliknięciu rozmytego posta** na dole ekranu pojawia się pasek:
+  - **To nie AI** – ten post nie będzie już ukrywany (zapamiętane na 180 dni, tylko w tej przeglądarce),
+  - **Ufaj @konto** – gdy post ukryto przez konto z listy: konto trafia do „Zaufanych kont”,
+  - **Zakryj** – zakrywa post z powrotem.
+- **Po rozwinięciu zwiniętego komentarza:** **To nie bot** (konto do „Zaufanych kont”), **Ukrywaj zawsze**
+  (konto do „Kont botów”) albo **Zakryj**.
+- **Prawy przycisk myszy na nazwie konta** → „Bez AI”:
+  - **Ukrywaj posty tego konta (treści AI)**,
+  - **Oznacz to konto jako bota**,
+  - **Ufaj temu kontu (nigdy nie ukrywaj)**.
+
+  Działa na każdym linku do profilu (także na dacie posta na X). Na dole pojawia się potwierdzenie z przyciskiem **Cofnij**.
 
 ## Jak wykrywa treści AI
 
@@ -205,7 +222,7 @@ bez platformy = wszystkie. `!` albo `#` zaczyna komentarz.
 
 ## Testy
 
-Wszystkie makiety naraz (107 przypadków na 11 makietach): uruchom serwer jak niżej i otwórz
+Wszystkie makiety naraz (118 przypadków na 12 makietach): uruchom serwer jak niżej i otwórz
 http://localhost:8791/test/index.html → „Uruchom wszystkie”.
 
 Makiety z automatycznym sprawdzaniem (pasek u góry pokazuje „OK x/y”). Serwer uruchom w głównym folderze repozytorium:
@@ -247,6 +264,12 @@ Testy rozróżniania „z AI” i „o AI” (38 przypadków, w tym prawdziwe ty
 node test/keywords.test.js
 ```
 
+Testy kont z linków (menu pod prawym przyciskiem) i zmiany statusu konta (25 sprawdzeń):
+
+```bash
+node test/accounts.test.js
+```
+
 Podgląd interfejsu bez instalowania wtyczki:
 - http://localhost:8791/test/popup.html – okienko wtyczki
 - http://localhost:8791/test/popup.html?page=options – strona list
@@ -262,7 +285,7 @@ extension/
   content/content.js   – wykrywanie i ukrywanie na stronie
   content/page-hook.js – (Instagram/Threads) odczyt danych postów, które strona i tak pobiera
   content/content.css  – wygląd trybów „ukryj” i „rozmyj”
-  background.js        – licznik na ikonie i suma „łącznie”
+  background.js        – licznik na ikonie, suma „łącznie”, wspólne listy, menu pod prawym przyciskiem
   popup/               – okienko po kliknięciu ikony
   options/             – edycja list
   icons/
@@ -272,7 +295,6 @@ test/                  – makiety stron i atrapa API chrome.* do testów
 
 ## Pomysły na dalej
 
-- Przyciski przy poście i komentarzu: „zablokuj konto”, „to nie AI”, „to nie bot”.
 - Ocena botów w odpowiedziach na X i Threads.
 - Wersja dla Firefoksa (również na Androida).
 - Opcjonalny lokalny detektor obrazów jako tryb „tylko rozmyj podejrzane”.

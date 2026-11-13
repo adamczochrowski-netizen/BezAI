@@ -80,6 +80,17 @@
   const commentData = new Map(); // konto → dane komentarzy z page-hook (Instagram)
   const rowLists = new WeakSet(); // elementy rozpoznane jako lista komentarzy
 
+  // Poprawki użytkownika: "To nie AI" (klucz posta → czas, chrome.storage.local), posty bez stałego
+  // adresu odznaczone tylko do odświeżenia strony, powód oznaczenia i autor komentarza (do przycisków).
+  const NOT_AI_MAX = 3000;
+  const NOT_AI_DAYS = 180;
+  let notAi = {};
+  const exemptEls = new WeakSet();
+  const flagReasons = new WeakMap();
+  const botUsers = new WeakMap();
+  // "Pokaż ukryte na tej karcie" (okienko wtyczki): w trybie "Ukryj" rozmywamy zamiast ukrywać – do odświeżenia.
+  let peek = false;
+
   // ---------- ustawienia ----------
 
   function escapeRe(s) {
@@ -474,6 +485,7 @@
   }
 
   function markBot(row, r, user, nt) {
+    if (user) botUsers.set(row, user);
     row.setAttribute('data-aib-bot', settings.botMode === 'hide' ? 'hide' : 'collapse');
     row.setAttribute('data-aib-botlabel',
       'Prawdopodobnie bot (' + r.reasons.slice(0, 3).join(', ') + ') · kliknij, aby pokazać');
@@ -879,6 +891,11 @@
       }
       return;
     }
+    // Użytkownik kliknął przy tym poście "To nie AI".
+    if (exemptEls.has(c)) return;
+    const key = postKey(c, code);
+    if (notAi[key]) return;
+    flagReasons.set(c, reason);
     c.setAttribute('data-aib-flagged', reason.type);
     c.setAttribute('data-aib-label', labelFor(reason));
     if (soft || reason.weak) c.setAttribute('data-aib-soft', '');
@@ -890,7 +907,6 @@
     for (const v of c.querySelectorAll('video')) {
       try { v.pause(); } catch (e) { /* ignore */ }
     }
-    const key = postKey(c, code);
     if (!pageKeys.has(key)) {
       pageKeys.add(key);
       pageCount++;
@@ -1005,6 +1021,138 @@
     } catch (e) { /* ignore */ }
   }
 
+  // ---------- pasek z przyciskami (po odsłonięciu, po wyborze z menu) ----------
+  // Własny element w shadow DOM, doklejony do <html> – poza drzewem, którym zarządza strona (React).
+
+  let toastHost = null;
+  let toastTimer = 0;
+
+  const TOAST_CSS = `
+    .t { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; max-width: min(560px, calc(100vw - 32px));
+      padding: 10px 12px; border-radius: 12px; background: #1c1b22; color: #f4f4f8;
+      font: 14px/1.4 system-ui, "Segoe UI", sans-serif; box-shadow: 0 8px 28px rgba(0,0,0,.35); }
+    .m { flex: 1 1 220px; }
+    .b { display: flex; flex-wrap: wrap; gap: 6px; }
+    button { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 11px; border-radius: 8px; cursor: pointer;
+      border: 1px solid #6d6a80; background: transparent; color: #f4f4f8; }
+    button.p { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+    button:hover { filter: brightness(1.15); }
+    button:focus-visible { outline: 2px solid #c4b5fd; outline-offset: 2px; }`;
+
+  function hideToast() {
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = 0;
+    if (toastHost) toastHost.remove();
+    toastHost = null;
+  }
+
+  // actions: [{label, primary, run}]
+  function showToast(text, actions, ms) {
+    hideToast();
+    const host = document.createElement('div');
+    host.setAttribute('data-aib-toast', '');
+    host.style.cssText = 'all:initial;position:fixed;z-index:2147483647;left:50%;bottom:20px;transform:translateX(-50%);';
+    const root = host.attachShadow({ mode: 'open' });
+    const style = document.createElement('style');
+    style.textContent = TOAST_CSS;
+    const box = document.createElement('div');
+    box.className = 't';
+    box.setAttribute('role', 'status');
+    const msg = document.createElement('span');
+    msg.className = 'm';
+    msg.textContent = text;
+    const btns = document.createElement('span');
+    btns.className = 'b';
+    for (const a of actions || []) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = a.label;
+      if (a.primary) b.className = 'p';
+      if (a.id) b.setAttribute('data-act', a.id);
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        hideToast();
+        a.run();
+      });
+      btns.append(b);
+    }
+    box.append(msg, btns);
+    root.append(style, box);
+    document.documentElement.append(host);
+    toastHost = host;
+    toastTimer = setTimeout(hideToast, ms || 10000);
+    return host;
+  }
+
+  function saveNotAi() {
+    const now = Date.now();
+    const keep = Object.entries(notAi)
+      .filter(([, t]) => now - t < NOT_AI_DAYS * 864e5)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, NOT_AI_MAX);
+    notAi = Object.fromEntries(keep);
+    try { chrome.storage.local.set({ notAi }); } catch (e) { /* ignore */ }
+  }
+
+  function markNotAi(c) {
+    const key = postKey(c, c.getAttribute('data-aib-code'));
+    // Bez stałego adresu posta (klucz "el…") pamiętamy tylko do odświeżenia strony.
+    if (key.startsWith('el')) exemptEls.add(c);
+    else {
+      notAi[key] = Date.now();
+      saveNotAi();
+    }
+    unflag(c);
+    if (pageKeys.delete(key)) {
+      pageCount = Math.max(0, pageCount - 1);
+      scheduleReport();
+    }
+  }
+
+  function undoToast(name) {
+    return {
+      id: 'undo',
+      label: 'Cofnij',
+      run: () => AIB.setAccountStatus(name, 'none').then(() => showToast('Cofnięte.', [], 3000))
+    };
+  }
+
+  function showFlagToast(c) {
+    const reason = flagReasons.get(c);
+    const what = reason ? describe(reason) : 'treść AI';
+    const actions = [
+      { id: 'not-ai', label: 'To nie AI', primary: true, run: () => {
+        markNotAi(c);
+        showToast('Zapamiętane – ten post nie będzie ukrywany.', [], 4000);
+      } },
+      { id: 'cover', label: 'Zakryj', run: () => c.removeAttribute('data-aib-revealed') }
+    ];
+    if (reason && reason.type === 'account') {
+      actions.splice(1, 0, { id: 'trust', label: 'Ufaj ' + AIB.accountLabel(reason.text), run: () => {
+        AIB.setAccountStatus(reason.text, 'trust')
+          .then(() => showToast(AIB.accountLabel(reason.text) + ' – zaufane konto.', [undoToast(reason.text)], 6000));
+      } });
+    }
+    showToast('Pokazano: ' + what + '.', actions);
+  }
+
+  function showBotToast(row) {
+    const user = botUsers.get(row);
+    const actions = [];
+    if (user) {
+      actions.push({ id: 'not-bot', label: 'To nie bot', primary: true, run: () => {
+        AIB.setAccountStatus(user, 'trust')
+          .then(() => showToast(AIB.accountLabel(user) + ' – zaufane konto, komentarze nie będą zwijane.', [undoToast(user)], 6000));
+      } });
+      actions.push({ id: 'block', label: 'Ukrywaj zawsze', run: () => {
+        AIB.setAccountStatus(user, 'bot')
+          .then(() => showToast(AIB.accountLabel(user) + ' – komentarze tego konta będą zwijane.', [undoToast(user)], 6000));
+      } });
+    }
+    actions.push({ id: 'cover', label: 'Zakryj', run: () => row.removeAttribute('data-aib-revealed') });
+    showToast('Pokazano komentarz' + (user ? ' ' + AIB.accountLabel(user) : '') + '.', actions);
+  }
+
   // ---------- kliknięcia i wideo ----------
 
   function onPointer(e) {
@@ -1017,12 +1165,15 @@
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
-      if (e.type === 'click') bot.setAttribute('data-aib-revealed', '');
+      if (e.type === 'click') {
+        bot.setAttribute('data-aib-revealed', '');
+        showBotToast(bot);
+      }
       return;
     }
     const c = t.closest('[data-aib-flagged]');
     if (!c) return;
-    if (settings.mode !== 'blur' && !c.hasAttribute('data-aib-soft')) return;
+    if (settings.mode !== 'blur' && !peek && !c.hasAttribute('data-aib-soft')) return;
     if (!c.hasAttribute('data-aib-revealed')) {
       e.preventDefault();
       e.stopPropagation();
@@ -1030,6 +1181,7 @@
       if (e.type === 'click') {
         c.setAttribute('data-aib-revealed', '');
         revealedAt.set(c, Date.now());
+        showFlagToast(c);
       }
       return;
     }
@@ -1075,7 +1227,7 @@
       report();
       return;
     }
-    document.documentElement.setAttribute('data-aib-mode', settings.mode === 'blur' ? 'blur' : 'hide');
+    document.documentElement.setAttribute('data-aib-mode', settings.mode === 'blur' || peek ? 'blur' : 'hide');
     for (const it of mediaItems.values()) mediaReasons.set(it.code, reasonForItem(it));
     startObserver();
     if (document.body) scanElement(document.body);
@@ -1093,6 +1245,9 @@
     settings = await AIB.loadSettings();
     sharedListData = await loadSharedData();
     mem = await memLoad();
+    notAi = await new Promise((resolve) => {
+      chrome.storage.local.get('notAi', (r) => resolve((r && r.notAi && typeof r.notAi === 'object') ? r.notAi : {}));
+    });
     window.addEventListener('pagehide', () => { if (memTimer) { clearTimeout(memTimer); memSave(); } });
 
     // Najpierw odbierz dane, które page-hook już zebrał (z HTML strony), dopiero potem skanuj.
@@ -1103,6 +1258,11 @@
     apply();
 
     chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === 'local' && changes && changes.notAi) {
+        // "To nie AI" kliknięte w innej karcie.
+        notAi = changes.notAi.newValue || {};
+        if (Object.keys(changes).length === 1) return;
+      }
       if (area === 'sync') {
         AIB.loadSettings().then((s) => {
           settings = s;
@@ -1128,8 +1288,16 @@
           siteName: site.name,
           active,
           count: active ? pageCount : 0,
-          bots: active ? botCount : 0
+          bots: active ? botCount : 0,
+          peek
         });
+      } else if (msg && msg.type === 'aib-toast' && window === window.top) {
+        // Wynik wyboru z menu pod prawym przyciskiem (background.js).
+        showToast(String(msg.text || ''), msg.undo ? [undoToast(String(msg.undo))] : [], 6000);
+      } else if (msg && msg.type === 'aib-peek') {
+        peek = true;
+        if (active) document.documentElement.setAttribute('data-aib-mode', 'blur');
+        sendResponse({ ok: true });
       }
     });
 

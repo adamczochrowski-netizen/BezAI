@@ -159,6 +159,8 @@ button {
   cursor: pointer;
 }
 button:hover { filter: brightness(1.08); }
+button.peek { display: block; width: 100%; margin-top: 8px; background: var(--panel); color: var(--text); border: 1px solid var(--line, #d4d4dc); }
+button.peek[hidden], #peekHint[hidden] { display: none; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chips label { position: relative; cursor: pointer; }

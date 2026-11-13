@@ -120,6 +120,19 @@ async function refreshStatus() {
   }
   $('tabCount').textContent = String(res.count || 0);
   $('botCount').textContent = String(res.bots || 0);
+  // Tryb "Ukryj": posty znikają, więc nie da się kliknąć "To nie AI" – można je na chwilę rozmyć.
+  const canPeek = res.active && settings.mode === 'hide' && (res.count || 0) > 0;
+  $('peek').hidden = !canPeek || !!res.peek;
+  $('peekHint').hidden = !res.peek;
+  if (res.peek) $('peekHint').textContent = 'Na tej karcie ukryte posty są teraz rozmyte. Kliknij post, aby go zobaczyć i poprawić pomyłkę („To nie AI”). Po odświeżeniu karty wróci ukrywanie.';
+}
+
+async function peek() {
+  try {
+    const tabId = await activeTabId();
+    if (tabId != null) await chrome.tabs.sendMessage(tabId, { type: 'aib-peek' });
+  } catch (e) { /* ignore */ }
+  refreshStatus();
 }
 
 async function refreshTotal() {
@@ -131,6 +144,7 @@ async function refreshTotal() {
 
 function bind() {
   $('enabled').addEventListener('change', (e) => save({ enabled: e.target.checked }).then(refreshStatus));
+  $('peek').addEventListener('click', peek);
   for (const r of document.querySelectorAll('input[name="mode"]')) {
     r.addEventListener('change', () => r.checked && save({ mode: r.value }));
   }
