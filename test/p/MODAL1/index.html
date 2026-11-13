@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Makieta – Instagram: okno posta nad feedem</title>
+  <link rel="stylesheet" href="/extension/content/content.css">
+  <link rel="stylesheet" href="/test/mock.css">
+  <style>
+    .home { display: flex; gap: 32px; align-items: flex-start; }
+    .feed { width: 470px; max-width: 100%; }
+    .feed article { background: #fff; border: 1px solid #dbdbdb; border-radius: 6px; margin-bottom: 16px; padding: 12px; color: #111; }
+    .feed article .ph { height: 260px; background: #0d9488; border-radius: 4px; margin: 8px 0; }
+    .side { width: 300px; font-size: 14px; color: #111; }
+    .side h4 { margin: 18px 0 8px; color: #737373; font-size: 13px; }
+    .srow, .crow { display: flex; gap: 10px; align-items: center; padding: 6px 0; }
+    .srow img, .crow img { width: 32px; height: 32px; border-radius: 50%; flex: none; }
+    .srow a, .crow a { color: #111; font-weight: 600; text-decoration: none; }
+    .srow small { display: block; color: #737373; }
+    .srow [role="button"] { margin-left: auto; color: #0095f6; font-weight: 600; font-size: 12px; }
+    [role="dialog"] { position: fixed; inset: 40px 60px auto auto; width: 380px; background: #fff; color: #111;
+      border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.35); padding: 12px; z-index: 10; }
+    .clist { display: flex; flex-direction: column; gap: 6px; }
+  </style>
+  <script>window.__AIB_SITE__ = 'instagram';</script>
+  <script src="/test/chrome-shim.js"></script>
+  <script src="/test/test-kit.js"></script>
+</head>
+<body class="ig">
+  <!-- Adres /test/p/MODAL1/ udaje okno posta otwarte z feedu (Instagram zmienia adres na /p/KOD/).
+       Pod oknem zostaje feed i panel boczny: własne konto z "Przełącz" i "Propozycje dla Ciebie".
+       Do 0.9.0 wtyczka brała panel za komentarze (ten sam tekst u 3 kont → "bot") i chowała go;
+       zapamiętywała też te konta jako boty. Konta i teksty wymyślone. -->
+  <main role="main">
+    <div class="home">
+      <div class="feed">
+        <article data-test-id="f1-post-ai" data-test-expect="hidden">
+          <header><a href="/neon.dreams.lab/">neon.dreams.lab</a></header>
+          <div class="ph"></div>
+          <div>Nowa seria plakatów <a href="/explore/tags/aiart/">#aiart</a></div>
+        </article>
+        <!-- Ukryty post zostaje w układzie strony (zerowa wysokość) – inaczej Instagram przestaje doczytywać feed. -->
+        <div data-test-id="f1-ukryty-w-ukladzie" data-test-check="hiddenStaysInLayout"></div>
+        <article data-test-id="f2-post-zwykly" data-test-expect="visible">
+          <header><a href="/gory.ola/">gory.ola</a></header>
+          <div class="ph"></div>
+          <div>Tatry o świcie</div>
+        </article>
+      </div>
+      <div class="side">
+        <div class="srow" data-test-id="s0-wlasne-konto" data-test-expect="nobot">
+          <img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23a855f7'/%3E%3C/svg%3E">
+          <div><a href="/moje.konto.test/">moje.konto.test</a><small>Jan Testowy</small></div>
+          <div role="button">Przełącz</div>
+        </div>
+        <h4>Propozycje dla Ciebie</h4>
+        <div class="slist">
+          <div class="srow" data-test-id="s1-propozycja" data-test-expect="nobot">
+            <img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23f43f5e'/%3E%3C/svg%3E">
+            <div><a href="/kasia.rower/">kasia.rower</a><small>Propozycje dla Ciebie</small></div>
+            <div role="button">Obserwuj</div>
+          </div>
+          <div class="srow" data-test-id="s2-propozycja" data-test-expect="nobot">
+            <img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%2322c55e'/%3E%3C/svg%3E">
+            <div><a href="/tomek_77120/">tomek_77120</a><small>Propozycje dla Ciebie</small></div>
+            <div role="button">Obserwuj</div>
+          </div>
+          <div class="srow" data-test-id="s3-propozycja" data-test-expect="nobot">
+            <img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23eab308'/%3E%3C/svg%3E">
+            <div><a href="/basia.ogrod/">basia.ogrod</a><small>Propozycje dla Ciebie</small></div>
+            <div role="button">Obserwuj</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div role="dialog">
+    <header><a href="/morze.foto/">morze.foto</a></header>
+    <div class="clist">
+      <div class="crow" data-test-id="d1-check-my-bio" data-test-expect="bot">
+        <img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%23fb7185'/%3E%3C/svg%3E">
+        <div><a href="/hot.anna_8812/">hot.anna_8812</a> <span>Check my bio for a surprise 😘💋</span></div>
+      </div>
+      <div class="crow" data-test-id="d2-czlowiek" data-test-expect="nobot">
+        <img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%2338bdf8'/%3E%3C/svg%3E">
+        <div><a href="/piotr.k/">piotr.k</a> <span>Piękne światło! Gdzie to?</span></div>
+      </div>
+      <div class="crow" data-test-id="d3-czlowiek" data-test-expect="nobot">
+        <img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Ccircle cx='.5' cy='.5' r='.5' fill='%2394a3b8'/%3E%3C/svg%3E">
+        <div><a href="/ola.k/">ola.k</a> <span>Cudne kolory 😍</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function hiddenStaysInLayout() {
+      const a = document.querySelector('[data-test-id="f1-post-ai"]');
+      const mode = document.documentElement.getAttribute('data-aib-mode');
+      const cs = getComputedStyle(a);
+      if (mode !== 'hide') return { ok: true, got: 'tryb ' + mode + ' – nie dotyczy' };
+      return { ok: cs.display !== 'none' && a.offsetHeight === 0, got: 'display=' + cs.display + ', wysokość=' + a.offsetHeight };
+    }
+  </script>
+  <script src="/extension/shared/bot-score.js"></script>
+  <script src="/extension/shared/defaults.js"></script>
+  <script src="/extension/shared/lists.js"></script>
+  <script src="/extension/content/content.js"></script>
+</body>
+</html>

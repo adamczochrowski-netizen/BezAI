@@ -297,13 +297,14 @@ function bindShared() {
   });
 
   $('clearMemory').addEventListener('click', async () => {
-    await chrome.storage.local.set({ botMemory: { t: {}, b: {} } });
+    await chrome.storage.local.set({ botMemory: { v: 2, t: {}, b: {} } });
     renderMemory();
   });
 }
 
 async function renderMemory() {
-  const { botMemory = {} } = await chrome.storage.local.get('botMemory');
+  const { botMemory: raw = {} } = await chrome.storage.local.get('botMemory');
+  const botMemory = raw.v === 2 ? raw : {}; // starsza pamięć (do 0.9.0) jest pomijana
   const texts = Object.keys(botMemory.t || {}).length;
   const bots = Object.keys(botMemory.b || {}).length;
   $('memInfo').textContent = settings.botMemory === false

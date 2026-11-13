@@ -20,7 +20,10 @@
       mediaFallback: true,
       noFallbackPaths: [/^\/direct\//, /^\/accounts\//],
       // Komentarze na Instagramie nie mają znacznika – rozpoznajemy wiersze listy (awatar + link do profilu).
-      commentHeuristic: true
+      commentHeuristic: true,
+      // Tylko na stronie posta / Reels (także okno posta otwarte z feedu – adres zmienia się na /p/…).
+      // W feedzie i na profilu listy awatarów to propozycje kont i "Przełącz", a nie komentarze.
+      commentPages: /^\/(?:[^/]+\/)?(?:p|reels?|tv)\/[^/]+/
     },
     facebook: {
       name: 'Facebook',

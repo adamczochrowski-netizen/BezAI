@@ -122,6 +122,8 @@ a „Zarobiłem 3000 zł dzięki @ewa” i „zarobilem 5000 zl dzieki @anna” 
 **Pamięć między postami (7 dni):** wtyczka pamięta, kto co pisał pod oglądanymi postami, żeby wyłapać
 komentarze wklejane pod różnymi postami i farmy kont. Zapisuje wyłącznie skróty (hasze) – bez nazw kont,
 treści i adresów – tylko w tej przeglądarce. Wyłączysz ją w okienku wtyczki, wyczyścisz w ustawieniach.
+Wersja 0.9.1 zaczyna pamięć od nowa: wcześniej trafiał do niej panel boczny Instagrama („Przełącz”,
+„Propozycje dla Ciebie”), więc zwykłe konta znajomych mogły być w niej zapisane jako boty.
 
 Zabezpieczenia przed pomyłkami:
 - opis autora posta nigdy nie jest oceniany (twórcy często piszą „link w bio”),
@@ -131,7 +133,8 @@ Zabezpieczenia przed pomyłkami:
 - czat Messengera nie jest oceniany,
 - lista „To nie boty” (np. znajomi) i lista „Konta botów” w ustawieniach.
 
-Gdzie działa: Instagram (strona posta, wiersze komentarzy + dane komentarzy), Facebook (komentarze
+Gdzie działa: Instagram (strona posta i okno posta otwarte z feedu, wiersze komentarzy + dane komentarzy;
+od 0.9.1 nie w feedzie ani na profilu – tam listy awatarów to propozycje kont, a nie komentarze), Facebook (komentarze
 w feedzie i w oknie komentarzy), X (odpowiedzi na stronie wpisu – od 0.8; płatny znaczek i szybka odpowiedź
 nie są tu sygnałem, bo na X ma je większość ludzi), Threads (odpowiedzi na stronie wpisu – od 0.9;
 wpisy nad wpisem głównym i „Powiązane wątki” pod spodem nie są oceniane), YouTube i Reddit (eksperymentalnie).
@@ -209,6 +212,12 @@ bez platformy = wszystkie. `!` albo `#` zaczyna komentarz.
   W jednej porcji feedu 3 posty miały etykietę AI w danych, a tylko 1 pokazywał ją w feedzie.
 - Strona posta (`/p/…`) i Reels (`/reels/…`) nie mają `<article>` – wtyczka rozmywa wtedy blok
   z dużym zdjęciem/wideo (zawsze rozmycie, także w trybie „Ukryj”).
+- Feed Instagrama doczytuje kolejne posty, gdy wcześniejsze pojawiają się na ekranie. Post schowany przez
+  `display:none` nigdy się „nie pojawia” i feed staje – dalej jest tylko puste, czarne tło (sprawdzone
+  13.11.2026: po ~28 000 px przewijania 0 widocznych postów). Dlatego „Ukryj” zostawia post w układzie
+  strony z zerową wysokością (od 0.9.1).
+- Okno posta otwarte z feedu ma `role="dialog"` i adres `/p/…`; pod nim zostaje feed i panel boczny
+  (własne konto, „Propozycje dla Ciebie”) – komentarze są oceniane tylko w oknie.
 - Facebook: nie ma `role="feed"`; posty to `div[aria-posinset]`, komentarze `role="article"` z opisem.
   Wiadomości czatu Messengera też mają `role="article"`, ale leżą poza `role="main"` – wtyczka ich nie rusza.
 
@@ -235,7 +244,7 @@ bez platformy = wszystkie. `!` albo `#` zaczyna komentarz.
 
 ## Testy
 
-Wszystkie makiety naraz (147 przypadków na 15 makietach): uruchom serwer jak niżej i otwórz
+Wszystkie makiety naraz (157 przypadków na 16 makietach): uruchom serwer jak niżej i otwórz
 http://localhost:8791/test/index.html → „Uruchom wszystkie”.
 
 Makiety z automatycznym sprawdzaniem (pasek u góry pokazuje „OK x/y”). Serwer uruchom w głównym folderze repozytorium:
@@ -254,10 +263,12 @@ Potem otwórz:
 - http://localhost:8791/test/facebook.html – 24 przypadki (m.in. ukrywa tylko komentarz AI, a nie cały
   post; boty w oknie komentarzy; kopiuj-wklej u 3 kont; życzenia urodzinowe nietknięte; czat Messengera nietknięty)
 
+- http://localhost:8791/test/p/MODAL1/ – okno posta nad feedem (10 przypadków: boty tylko w oknie,
+  panel boczny „Przełącz” / „Propozycje dla Ciebie” nietknięty, ukryty post zostaje w układzie strony)
 - http://localhost:8791/test/p/MEM1/ → MEM2/ → MEM3/ (odwiedzane po kolei, po ~4 s na stronie) – pamięć
   między postami: ten sam komentarz jednego konta i farma 3 kont zwinięte dopiero pod 3. postem,
   życzenia od cioci pod każdym postem nietknięte
-- http://localhost:8791/test/shared-lists.html – wspólne listy (9 przypadków: konto z listy, link do profilu,
+- http://localhost:8791/test/p/LISTS/ – wspólne listy (9 przypadków: konto z listy, link do profilu,
   „wszystkie platformy”, konto tylko z Facebooka, zaufane konto mimo listy, bot ze wspólnej listy)
 
 Testy samej oceny botów (40 przypadków + 6 testów podobieństwa tekstów, m.in. prawdziwy zalew

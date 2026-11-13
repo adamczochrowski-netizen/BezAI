@@ -290,9 +290,10 @@
     return c && !RESERVED_PATHS.has(c) && !AIB.NOT_ACCOUNT.has(c) ? c : null;
   }
 
-  // Na X odpowiedzi oceniamy tylko na stronie wpisu (/konto/status/123).
+  // Na X i Threads odpowiedzi oceniamy tylko na stronie wpisu (/konto/status/123), na Instagramie – posta.
   function commentsHere() {
-    return !site.commentPath || site.commentPath.test(location.pathname);
+    const re = site.commentPath || site.commentPages;
+    return !re || re.test(location.pathname);
   }
 
   function hasProfileLink(el) {
@@ -319,10 +320,16 @@
       }
       if (isList) {
         const h = a.getBoundingClientRect().height;
-        return h > 0 && h < 400 && !containsBigMedia(a) ? a : null;
+        return h > 0 && h < 400 && !containsBigMedia(a) && !behindDialog(a) ? a : null;
       }
     }
     return null;
+  }
+
+  // Okno posta otwarte nad feedem: komentarze są tylko w oknie. Pod spodem zostaje panel boczny
+  // (własne konto z "Przełącz", "Propozycje dla Ciebie") – też lista awatarów z linkami, ale to nie komentarze.
+  function behindDialog(el) {
+    return !el.closest('[role="dialog"]') && !!document.querySelector('[role="dialog"]');
   }
 
   function commentRowOf(node) {
@@ -591,7 +598,10 @@
 
   const MEM_DAYS = 7;
   const MEM_MAX_TEXTS = 4000;
-  let mem = { t: {}, b: {} };
+  // 2 = od 0.9.1. Starsza pamięć jest pomijana: do 0.9.0 trafiały do niej wiersze panelu bocznego
+  // Instagrama (znajomi z "Obserwuje …", własne konto), więc mogła trzymać zwykłe konta jako boty.
+  const MEM_VERSION = 2;
+  let mem = { v: MEM_VERSION, t: {}, b: {} };
   let memTimer = 0;
 
   function memHash(s) {
@@ -662,8 +672,9 @@
     memTimer = 0;
     try {
       chrome.storage.local.get('botMemory', (r) => {
-        const stored = (r && r.botMemory) || { t: {}, b: {} };
-        mem = memPrune(memMerge(memMerge({ t: {}, b: {} }, stored), mem));
+        const raw = r && r.botMemory;
+        const stored = raw && raw.v === MEM_VERSION ? raw : { t: {}, b: {} };
+        mem = memPrune(memMerge(memMerge({ v: MEM_VERSION, t: {}, b: {} }, stored), mem));
         chrome.storage.local.set({ botMemory: mem });
       });
     } catch (e) { /* wtyczka przeładowana */ }
@@ -695,8 +706,9 @@
   function memLoad() {
     return new Promise((resolve) => {
       chrome.storage.local.get('botMemory', (r) => {
-        const m = (r && r.botMemory) || {};
-        resolve(memPrune({ t: m.t || {}, b: m.b || {} }));
+        const raw = (r && r.botMemory) || {};
+        const m = raw.v === MEM_VERSION ? raw : {};
+        resolve(memPrune({ v: MEM_VERSION, t: m.t || {}, b: m.b || {} }));
       });
     });
   }
@@ -815,8 +827,15 @@
     if (c) flagContainer(c, reason, code, true);
   }
 
+  let lastPath = location.pathname;
+
   function checkUrl() {
     if (!active) return;
+    if (location.pathname !== lastPath) {
+      lastPath = location.pathname;
+      // Okno posta z feedu: komentarze mogły się wyrenderować, zanim adres zmienił się na /p/….
+      if (settings.detectBots && BOTS && site.commentPages && commentsHere()) scanComments(document.body);
+    }
     const code = codeFromPath(location.pathname);
     if (!code) return;
     const r = mediaReasons.get(code);
@@ -1353,7 +1372,7 @@
       } else if (area === 'local' && changes && changes.botMemory && changes.botMemory.newValue &&
           !Object.keys(changes.botMemory.newValue.t || {}).length && !Object.keys(changes.botMemory.newValue.b || {}).length) {
         // "Wyczyść pamięć" w ustawieniach
-        mem = { t: {}, b: {} };
+        mem = { v: MEM_VERSION, t: {}, b: {} };
       } else if (area === 'local' && (!changes || changes.sharedListData || !Object.keys(changes).length)) {
         // Odświeżona wspólna lista → przelicz.
         loadSharedData().then((d) => {

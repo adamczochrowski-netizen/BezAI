@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <title>Makieta – przyciski „To nie AI”, „Ufaj”, „To nie bot”</title>
-  <link rel="stylesheet" href="../extension/content/content.css">
-  <link rel="stylesheet" href="mock.css">
+  <link rel="stylesheet" href="/extension/content/content.css">
+  <link rel="stylesheet" href="/test/mock.css">
   <style>
     .post-box { display: flex; background: #fff; border: 1px solid #dbdbdb; border-radius: 6px; margin-top: 16px; }
     .post-box .media-wrap { width: 300px; height: 420px; flex: none; }
@@ -25,8 +25,8 @@
       localStorage.setItem('aib-test:local', JSON.stringify(local));
     } catch (e) { localStorage.removeItem('aib-test:local'); }
   </script>
-  <script src="chrome-shim.js"></script>
-  <script src="test-kit.js"></script>
+  <script src="/test/chrome-shim.js"></script>
+  <script src="/test/test-kit.js"></script>
 </head>
 <body class="ig">
   <main role="main">
@@ -84,10 +84,10 @@
     <span data-test-id="s5-tryb-ukryj-pokaz-ukryte" data-test-check="checkPeek"></span>
   </div>
 
-  <script src="../extension/shared/bot-score.js"></script>
-  <script src="../extension/shared/defaults.js"></script>
-  <script src="../extension/shared/lists.js"></script>
-  <script src="../extension/content/content.js"></script>
+  <script src="/extension/shared/bot-score.js"></script>
+  <script src="/extension/shared/defaults.js"></script>
+  <script src="/extension/shared/lists.js"></script>
+  <script src="/extension/content/content.js"></script>
   <script>
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     const store = (area) => JSON.parse(localStorage.getItem('aib-test:' + area) || '{}');
@@ -135,10 +135,11 @@
         await chrome.storage.sync.set({ mode: 'hide' });
         await sleep(400);
         const a2 = byId('a2-nietkniety');
-        const hiddenBefore = getComputedStyle(a2).display === 'none';
+        // Ukryty = zerowa wysokość (od 0.9.1 bez display:none – Instagram przestawał doczytywać feed).
+        const hiddenBefore = a2.offsetHeight === 0;
         const status = await window.__aibAskContent({ type: 'aib-peek' });
         await sleep(100);
-        const visibleAfter = getComputedStyle(a2).display !== 'none';
+        const visibleAfter = a2.offsetHeight > 0;
         a2.click();
         await sleep(150);
         const toast = !!toastButton('not-ai');

@@ -3,10 +3,28 @@
    data-aib-soft = blok znaleziony "po obrazku" (strona posta, Reels, siatka) – zawsze rozmywamy,
    bo ukrycie całkiem zostawiłoby pustą stronę albo popsuło przewijanie Reels. */
 
-/* Komentarze botów: "hide" – znikają, "collapse" – zwinięte do szarego paska z powodem. */
-html[data-aib-mode] [data-aib-bot="hide"]:not([data-aib-revealed]) {
+/* Ukrywanie = zerowa wysokość i schowane dzieci, a NIE display:none na samym elemencie.
+   Instagram dokłada kolejne posty, gdy wcześniejsze pojawiają się na ekranie – element wycięty
+   z układu strony nigdy się nie pojawia i lista staje: dalej jest już tylko puste tło (sprawdzone 13.11.2026). */
+html[data-aib-mode] [data-aib-bot="hide"]:not([data-aib-revealed]),
+html[data-aib-mode="hide"] [data-aib-flagged]:not([data-aib-soft]) {
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border-width: 0 !important;
+  overflow: hidden !important;
+}
+
+html[data-aib-mode] [data-aib-bot="hide"]:not([data-aib-revealed]) > *,
+html[data-aib-mode="hide"] [data-aib-flagged]:not([data-aib-soft]) > * {
   display: none !important;
 }
+
+/* Komentarze botów: "hide" – znikają (wyżej), "collapse" – zwinięte do szarego paska z powodem. */
 
 html[data-aib-mode] [data-aib-bot="collapse"]:not([data-aib-revealed]) > * {
   display: none !important;
@@ -29,11 +47,6 @@ html[data-aib-mode] [data-aib-bot="collapse"]:not([data-aib-revealed])::after {
   flex: 1 1 100% !important;
   min-width: 0 !important;
   box-sizing: border-box !important;
-}
-
-/* Tryb "Ukryj" */
-html[data-aib-mode="hide"] [data-aib-flagged]:not([data-aib-soft]) {
-  display: none !important;
 }
 
 /* Tryb "Rozmyj" (+ bloki "soft" w każdym trybie) */

@@ -22,7 +22,9 @@
     td.res.ok { color: var(--ok); } td.res.err { color: var(--err); } td.res.wait { color: var(--muted); }
     td small { color: var(--muted); }
     .fail { color: var(--err); font-size: 12.5px; }
-    iframe { width: 100%; height: 360px; margin-top: 14px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+    /* Ramka zawsze w szerokości komputera – w wąskim oknie makiety układają się inaczej niż Instagram na komputerze. */
+    .frame-wrap { margin-top: 14px; overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+    iframe { display: block; width: 1100px; height: 360px; border: 0; background: #fff; }
   </style>
 </head>
 <body>
@@ -35,10 +37,10 @@
       <thead><tr><th>Makieta</th><th>Wynik</th><th>Co sprawdza</th></tr></thead>
       <tbody id="rows"></tbody>
     </table>
-    <iframe id="frame" title="Aktualnie testowana makieta"></iframe>
+    <div class="frame-wrap"><iframe id="frame" title="Aktualnie testowana makieta"></iframe></div>
   </main>
   <script>
-    // Kolejność ma znaczenie: MEM1→MEM2→MEM3 budują pamięć, shared-lists nadpisuje ustawienia (na końcu).
+    // Kolejność ma znaczenie: MEM1→MEM2→MEM3 budują pamięć, p/LISTS nadpisuje ustawienia (prawie na końcu).
     const PAGES = [
       { url: 'facebook.html', wait: 2000, what: 'Facebook: posty, komentarze AI, okno komentarzy z botami, czat nietknięty' },
       { url: 'instagram.html', wait: 4000, what: 'Instagram: feed, etykiety „przez SI”, dane posta (HTML i XHR), fałszywe alarmy' },
@@ -50,11 +52,12 @@
       { url: 'x.html', wait: 1500, what: 'X: konto z „AI Art” w nazwie ukryte, opinie o AI rozmyte albo nietknięte' },
       { url: 'status/12345/', wait: 2000, what: 'X: boty w odpowiedziach pod wpisem (przypięty wpis, szablon oszustwa u 3 kont), autor i popularne odpowiedzi nietknięte' },
       { url: 'post/THR123/', wait: 2000, what: 'Threads: boty w odpowiedziach pod wpisem; wpis nad głównym, autor, popularna odpowiedź i „Powiązane wątki” nietknięte' },
+      { url: 'p/MODAL1/', wait: 2000, what: 'Instagram: okno posta nad feedem – boty tylko w oknie, panel boczny („Przełącz”, „Propozycje dla Ciebie”) nietknięty, ukryty post zostaje w układzie strony' },
       { url: 'p/MEM1/', wait: 4500, what: 'Pamięć między postami – 1. post (nic nie zwinięte)' },
       { url: 'p/MEM2/', wait: 4500, what: 'Pamięć między postami – 2. post (nic nie zwinięte)' },
       { url: 'p/MEM3/', wait: 4500, what: 'Pamięć między postami – 3. post (konto i farma zwinięte)' },
-      { url: 'shared-lists.html', wait: 2500, what: 'Wspólne listy kont: subskrypcja, zaufane konta, boty z listy' },
-      { url: 'actions.html', wait: 6500, what: 'Przyciski po odsłonięciu: „To nie AI” (zapamiętane), „Ufaj @konto”, „To nie bot”, „Pokaż ukryte na tej karcie”' }
+      { url: 'p/LISTS/', wait: 2500, what: 'Wspólne listy kont: subskrypcja, zaufane konta, boty z listy' },
+      { url: 'p/ACTIONS/', wait: 6500, what: 'Przyciski po odsłonięciu: „To nie AI” (zapamiętane), „Ufaj @konto”, „To nie bot”, „Pokaż ukryte na tej karcie”' }
     ];
     const $ = (id) => document.getElementById(id);
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -92,13 +95,19 @@
       $('run').disabled = true;
       localStorage.clear();
       renderRows();
+      $('summary').className = '';
+      $('summary').textContent = 'trwa…';
       let okPages = 0, total = 0, passed = 0;
       for (const p of PAGES) {
         p.cell.textContent = 'trwa…';
         const f = await load(p.url);
         await sleep(p.wait);
         let r;
-        try { r = f.contentWindow.__aibCheck(); } catch (e) { r = { pass: false, total: 0, failed: [{ id: 'błąd strony: ' + e.message }] }; }
+        try { r = f.contentWindow.__aibCheck(); } catch (e) {
+          // Strona błędu przeglądarki (np. wyłączony serwer testowy) jest z innego źródła – stąd "cross-origin".
+          const id = /cross-origin|null/i.test(e.message) ? 'makieta się nie wczytała – czy serwer testowy działa?' : 'błąd strony: ' + e.message;
+          r = { pass: false, total: 1, failed: [{ id, want: 'strona', got: 'brak' }] };
+        }
         total += r.total;
         passed += r.total - r.failed.length;
         if (r.pass) okPages++;

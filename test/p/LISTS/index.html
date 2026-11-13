@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <title>Makieta – wspólne listy kont</title>
-  <link rel="stylesheet" href="../extension/content/content.css">
-  <link rel="stylesheet" href="mock.css">
+  <link rel="stylesheet" href="/extension/content/content.css">
+  <link rel="stylesheet" href="/test/mock.css">
   <style>
     .clist { width: 470px; background: #fff; border: 1px solid #dbdbdb; border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 12px; }
     .crow { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
@@ -22,8 +22,8 @@
     }));
     localStorage.setItem('aib-test:local', JSON.stringify({}));
   </script>
-  <script src="chrome-shim.js"></script>
-  <script src="test-kit.js"></script>
+  <script src="/test/chrome-shim.js"></script>
+  <script src="/test/test-kit.js"></script>
 </head>
 <body class="ig">
   <main>
@@ -84,10 +84,10 @@
     </div>
   </main>
 
-  <script src="../extension/shared/bot-score.js"></script>
-  <script src="../extension/shared/defaults.js"></script>
-  <script src="../extension/shared/lists.js"></script>
-  <script src="../extension/content/content.js"></script>
+  <script src="/extension/shared/bot-score.js"></script>
+  <script src="/extension/shared/defaults.js"></script>
+  <script src="/extension/shared/lists.js"></script>
+  <script src="/extension/content/content.js"></script>
   <script>
     // Jak service worker po instalacji: pobierz subskrybowane listy (wtyczka już działa – musi się przeliczyć).
     setTimeout(() => AIBLists.refreshAll().then((d) => { window.__aibListData = d; }), 300);
